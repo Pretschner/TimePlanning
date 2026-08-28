@@ -26,7 +26,7 @@ public class SatEngine {
         applyNoOverlap(model, variables);
 
         // Solve
-        SolutionCollector store = new SolutionCollector(variables, tasks, config.strategy(), config.storedSolutions());
+        SolutionCollector store = new SolutionCollector(variables, tasks, config.strategy(), new ScheduleFilter(config), config.storedSolutions());
         CpSolver solver = new CpSolver();
         solver.getParameters().setEnumerateAllSolutions(true);
         solver.getParameters().setMaxTimeInSeconds(config.searchTime());

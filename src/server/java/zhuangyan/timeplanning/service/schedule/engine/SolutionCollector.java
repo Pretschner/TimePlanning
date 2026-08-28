@@ -3,7 +3,7 @@ package zhuangyan.timeplanning.service.schedule.engine;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.IntVar;
 import zhuangyan.timeplanning.model.Task;
-
+import zhuangyan.timeplanning.service.schedule.ScheduleFilter;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
 
 import java.util.ArrayList;
@@ -18,17 +18,17 @@ public class SolutionCollector extends CpSolverSolutionCallback {
     // Store storedSolutions best solutions.
     private final PriorityQueue<ScoredSolution> bestSolutions;
 
-
+    private final ScheduleFilter filter;
     private final ScoringStrategy strategy;
 
-    public SolutionCollector(Variables variables, List<Task> tasks, ScoringStrategy strategy, int storedSolutions) {
+    public SolutionCollector(Variables variables, List<Task> tasks, ScoringStrategy strategy, ScheduleFilter filter, int storedSolutions) {
         this.variables = variables;
         this.tasks = tasks;
 
         this.storedSolutions = storedSolutions;
         this.bestSolutions = new PriorityQueue<>(this::compare);
 
-
+        this.filter = filter;
         this.strategy = strategy;
     }
 
@@ -37,7 +37,7 @@ public class SolutionCollector extends CpSolverSolutionCallback {
         try {
             List<Integer> slotsCopy = copySlots(variables.startSlots());
             // Evaluate using filter and strategy.
-            int violations = 0; // Stubbed Filter
+            int violations = filter.amountViolations(slotsCopy, tasks);
             double score = strategy != null ? strategy.score(slotsCopy, tasks) : 0.0;
             // Store in bestSolutions.
             ScoredSolution solution = new ScoredSolution(slotsCopy, score, violations);
