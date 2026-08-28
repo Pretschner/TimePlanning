@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'zhuangyan'
+version = '0.0.1-SNAPSHOT'
+description = 'Time-Planning'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    common {
+        java {
+            srcDir 'src/common/java'
+        }
+    }
+    server {
+        java {
+            srcDir 'src/server/java'
+        }
+        resources {
+            srcDir 'src/server/resources'
+        }
+        compileClasspath += common.output
+        runtimeClasspath += common.output
+    }
+    client {
+        java {
+            srcDir 'src/client/java'
+        }
+        resources {
+            srcDir 'src/client/resources'
+        }
+        compileClasspath += common.output
+        runtimeClasspath += common.output
+    }
+}
+
+dependencies {
+    clientImplementation 'org.springframework.boot:spring-boot-starter-web'
+    clientImplementation 'com.formdev:flatlaf:3.7'
+
+    serverImplementation 'org.springframework.boot:spring-boot-starter-web'
+    serverImplementation 'com.google.ortools:ortools-java:9.12.4544'
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+}
+test {
+    useJUnitPlatform()
+}
