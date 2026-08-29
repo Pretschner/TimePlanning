@@ -1,0 +1,4 @@
+srcGroup,trgGroup,minGap,maxGap
+Meal,Sport,PT30M,
+Meal,Fitness,PT30M,
+Leisure,Sleep,,PT3H
