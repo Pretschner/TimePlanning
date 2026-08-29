@@ -1,0 +1,72 @@
+package zhuangyan.timeplanning.controller;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClient;
+import zhuangyan.timeplanning.model.GroupConstraint;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+public class ConstraintController {
+    private final RestClient restClient;
+    private final List<GroupConstraint> constraints;
+
+    public ConstraintController() {
+        restClient = RestClient.builder()
+                .baseUrl("http://localhost:8080/")
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+        constraints = new ArrayList<>();
+    }
+
+    public void addGroupConstraint(GroupConstraint constraint, Consumer<List<GroupConstraint>> constraintsConsumer) {
+        GroupConstraint addedGroupConstraint = restClient.post()
+                .uri("constraints")
+                .header(HttpHeaders.AUTHORIZATION, TokenStore.getHeader())
+                .body(constraint)
+                .retrieve()
+                .toEntity(GroupConstraint.class)
+                .getBody();
+        constraints.add(addedGroupConstraint);
+        constraintsConsumer.accept(constraints);
+    }
+
+    public void editGroupConstraint(GroupConstraint constraint, Consumer<List<GroupConstraint>> constraintsConsumer) {
+        GroupConstraint updatedGroupConstraint = restClient.put()
+                .uri("constraints/" + constraint.id())
+                .header(HttpHeaders.AUTHORIZATION, TokenStore.getHeader())
+                .body(constraint)
+                .retrieve()
+                .toEntity(GroupConstraint.class)
+                .getBody();
+        constraints.replaceAll(oldGroupConstraint -> oldGroupConstraint.id().equals(updatedGroupConstraint.id()) ? updatedGroupConstraint : oldGroupConstraint);
+        constraintsConsumer.accept(constraints);
+    }
+
+    public void deleteGroupConstraint(GroupConstraint constraint, Consumer<List<GroupConstraint>> constraintsConsumer) {
+        GroupConstraint deletedGroupConstraint = restClient.delete()
+                .uri("constraints/" + constraint.id())
+                .header(HttpHeaders.AUTHORIZATION, TokenStore.getHeader())
+                .retrieve()
+                .toEntity(GroupConstraint.class)
+                .getBody();
+        constraints.removeIf(t -> t.id().equals(deletedGroupConstraint.id()));
+        constraintsConsumer.accept(constraints);
+    }
+
+    public void getAllConstraints(Consumer<List<GroupConstraint>> constraintsConsumer) {
+        List<GroupConstraint> receivedConstraints = restClient.get()
+                .uri("constraints")
+                .header(HttpHeaders.AUTHORIZATION, TokenStore.getHeader())
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<List<GroupConstraint>>() {})
+                .getBody();
+        constraints.clear();
+        constraints.addAll(receivedConstraints);
+        constraintsConsumer.accept(constraints);
+    }
+}
