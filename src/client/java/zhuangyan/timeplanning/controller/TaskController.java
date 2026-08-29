@@ -4,6 +4,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
+import zhuangyan.timeplanning.model.Config;
 import zhuangyan.timeplanning.model.Task;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class TaskController {
 
     public TaskController() {
         restClient = RestClient.builder()
-                .baseUrl("http://localhost:8080/")
+                .baseUrl(Config.base_url)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
