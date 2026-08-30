@@ -15,16 +15,13 @@ import java.net.URI;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 public class MainApplicationUI extends JFrame {
     /**
      * Main UI handling CRUD operations for Tasks and Constraints and Schedule Generation
      */
     // Controller Access
-    private final TaskController taskController = new TaskController();
-    private final ConstraintController constraintController = new ConstraintController();
-    private final ScheduleController scheduleController = new ScheduleController();
+    private final ControllerCaller controllerCaller = new ControllerCaller(this);
 
     // UI Components
     private JTabbedPane tabbedPane;
@@ -67,7 +64,7 @@ public class MainApplicationUI extends JFrame {
 
     public MainApplicationUI() {
         initUI();
-        syncAllDataFromServer();
+        controllerCaller.syncAllDataFromServer();
     }
 
     private void initUI() {
@@ -109,7 +106,7 @@ public class MainApplicationUI extends JFrame {
         generateBtn = new JButton("⚡ Generate Schedule");
         generateBtn.setPreferredSize(new Dimension(160, 32));
         generateBtn.addActionListener(e -> {
-            ScheduleDialog.show(this, slotInMinutes, this::generateSchedule);
+            ScheduleDialog.show(this, slotInMinutes, controllerCaller::generateSchedule);
         });
 
         addBtn = new JButton("Add");
@@ -289,21 +286,21 @@ public class MainApplicationUI extends JFrame {
 
     private void handleAdd() {
         int idx = tabbedPane.getSelectedIndex();
-        if (idx == 0) TaskDialog.show(this, null, this::callAddTask);
-        else ConstraintDialog.show(this, null, this::callAddConstraint); // idx == 1
+        if (idx == 0) TaskDialog.show(this, null, controllerCaller::callAddTask);
+        else ConstraintDialog.show(this, null, controllerCaller::callAddConstraint); // idx == 1
     }
 
     private void handleEdit() {
         int idx = tabbedPane.getSelectedIndex();
-        if (idx == 0 && selectedTask != null) TaskDialog.show(this, selectedTask, this::callUpdateTask);
-        else if (idx == 1 && selectedConstraint != null) ConstraintDialog.show(this, selectedConstraint, this::callUpdateConstraint);
+        if (idx == 0 && selectedTask != null) TaskDialog.show(this, selectedTask, controllerCaller::callUpdateTask);
+        else if (idx == 1 && selectedConstraint != null) ConstraintDialog.show(this, selectedConstraint, controllerCaller::callUpdateConstraint);
         else JOptionPane.showMessageDialog(this, "Please select an item to edit.");
     }
 
     private void handleDelete() {
         int idx = tabbedPane.getSelectedIndex();
-        if (idx == 0 && selectedTask != null) this.deleteTask(selectedTask);
-        else if (idx == 1 && selectedConstraint != null) this.deleteConstraint(selectedConstraint);
+        if (idx == 0 && selectedTask != null) controllerCaller.deleteTask(selectedTask);
+        else if (idx == 1 && selectedConstraint != null) controllerCaller.deleteConstraint(selectedConstraint);
         else JOptionPane.showMessageDialog(this, "Please select an item to delete.");
     }
 
@@ -512,140 +509,5 @@ public class MainApplicationUI extends JFrame {
         prevScheduleButton.setEnabled(currentScheduleIndex > 0);
         nextScheduleButton.setEnabled(currentScheduleIndex < schedulesList.size() - 1);
         scheduleNavLabel.setText("Schedule " + (currentScheduleIndex + 1) + "/" + schedulesList.size());
-    }
-
-    public void callAddTask(Task task) {
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                try { taskController.addTask(task, l -> updateTaskTable(l)); }
-                catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Failed to add task", error);
-            }
-        }.execute();
-    }
-
-    public void callUpdateTask(Task task) {
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                try { taskController.editTask(task, l -> updateTaskTable(l)); }
-                catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Failed to update task", error);
-            }
-        }.execute();
-    }
-
-    public void deleteTask(Task task) {
-        int confirm = JOptionPane.showConfirmDialog(this, "Delete task '" + task.name() + "'?", "Confirm", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                try { taskController.deleteTask(task, l -> updateTaskTable(l)); }
-                catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Delete failed", error);
-            }
-        }.execute();
-    }
-
-    public void callAddConstraint(GroupConstraint c) {
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                try { constraintController.addGroupConstraint(c, l -> updateConstraintTable(l)); }
-                catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Failed to add constraint", error);
-            }
-        }.execute();
-    }
-
-    public void callUpdateConstraint(GroupConstraint c) {
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                try { constraintController.editGroupConstraint(c, l -> updateConstraintTable(l)); }
-                catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Failed to update constraint", error);
-            }
-        }.execute();
-    }
-
-    public void deleteConstraint(GroupConstraint c) {
-        int confirm = JOptionPane.showConfirmDialog(this, "Delete constraint (" + c.sourceGroup() + " -> " + c.targetGroup() + ")?", "Confirm", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                try { constraintController.deleteGroupConstraint(c, l -> updateConstraintTable(l)); }
-                catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Delete failed", error);
-            }
-        }.execute();
-    }
-
-    // DATA SYNC ON STARTUP
-
-    public void syncAllDataFromServer() {
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                CountDownLatch latch = new CountDownLatch(3);
-                try {
-                    taskController.getAllTasks(tasks -> { updateTaskTable(tasks); latch.countDown(); });
-                    constraintController.getAllConstraints(constraints -> { updateConstraintTable(constraints); latch.countDown(); });
-                    scheduleController.getAllSchedules(schedules -> {
-                        if (!schedules.isEmpty()) updateTimetable(schedules);
-                        latch.countDown();
-                    });
-                    latch.await();
-                } catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Sync failed", error);
-            }
-        }.execute();
-    }
-
-    public void generateSchedule(ScheduleConfig config) {
-        new SwingWorker<Void, Void>() {
-            private Exception error;
-            @Override protected Void doInBackground() {
-                try { scheduleController.addSchedule(config, l -> updateTimetable(l)); }
-                catch (Exception e) { error = e; }
-                return null;
-            }
-            @Override protected void done() {
-                if (error != null) showError("Schedule generation failed", error);
-                else JOptionPane.showMessageDialog(MainApplicationUI.this, "Schedule generated!");
-            }
-        }.execute();
-    }
-
-    // Error Handling
-    private void showError(String message, Exception e) {
-        SwingUtilities.invokeLater(() -> {
-            String detail = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-            JOptionPane.showMessageDialog(this, message + ":\n" + detail, "Error", JOptionPane.ERROR_MESSAGE);
-        });
     }
 }
