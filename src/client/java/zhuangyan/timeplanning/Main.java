@@ -1,8 +1,16 @@
 package zhuangyan.timeplanning;
 
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import zhuangyan.timeplanning.view.AuthenticationUI;
+
+import javax.swing.*;
+
 public class Main {
     public static void main(String[] args) {
-        SanityCheck check = new SanityCheck();
-        check.sanityCheck();
+        try {
+            FlatIntelliJLaf.setup();
+        } catch (Exception ignored) {}
+
+        SwingUtilities.invokeLater(AuthenticationUI::new);
     }
 }

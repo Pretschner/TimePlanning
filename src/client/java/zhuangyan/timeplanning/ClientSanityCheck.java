@@ -9,14 +9,14 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SanityCheck {
+public class ClientSanityCheck {
 
     private final TaskController taskController;
     private final ConstraintController constraintController;
     private final ScheduleController scheduleController;
     private final AuthenticationController authenticationController;
 
-    public SanityCheck() {
+    public ClientSanityCheck() {
         this.taskController = new TaskController();
         this.constraintController = new ConstraintController();
         this.scheduleController = new ScheduleController();
@@ -258,5 +258,10 @@ public class SanityCheck {
 
             System.out.println("\nSanity Check Completed");
         }
+    }
+
+    public static void main(String[] args) {
+        ClientSanityCheck check = new ClientSanityCheck();
+        check.sanityCheck();
     }
 }

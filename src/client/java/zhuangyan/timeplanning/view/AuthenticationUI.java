@@ -289,12 +289,4 @@ public class AuthenticationUI extends JFrame {
         if (msg != null && msg.contains("500")) return "Server error. Try again later.";
         return msg != null ? msg : "Network error. Check your connection.";
     }
-
-    public static void main(String[] args) {
-        try {
-            FlatIntelliJLaf.setup();
-        } catch (Exception ignored) {}
-
-        SwingUtilities.invokeLater(AuthenticationUI::new);
-    }
 }

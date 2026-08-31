@@ -46,9 +46,9 @@ Simply clone the repository and sync the Gradle project.
 
 The application runs as a client-server model locally:
 
-Start the Server: Run the TimePlanningApplication main method.
+Start the Server: Run the TimePlanningApplication Class main method.
 
-Start the Client: Run the AuthenticationUI main method.
+Start the Client: Run the Main Class main method.
 
 ### Usage
 Login using the default credentials (for demo purposes):
@@ -69,9 +69,9 @@ If you want to build an example yourself, feel free to create a random account a
 ## Testing
 To verify the core scheduling logic without dealing with the Swing interface, we provide two entry points:
 
-**ServerMain** – Runs the backend logic standalone to test constraint loading.
+**ServerSanityCheck** – Runs the backend logic standalone to test constraint loading.
 
-**SanityCheck** – Located in the Client package, this runs a series of integration tests for endpoint handling without rendering the UI.
+**ClientSanityCheck** – Located in the Client package, this runs a series of integration tests for endpoint handling without rendering the UI.
 
 Use these to ensure the engine works before you hook it up to the frontend.
 Note: As the name suggests, these are more simple checks than a sophisticated testing suite.

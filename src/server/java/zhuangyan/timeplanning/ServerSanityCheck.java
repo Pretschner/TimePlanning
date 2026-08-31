@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 
-public class ServerMain {
+public class ServerSanityCheck {
 
     public static void main(String[] args) {
 
