@@ -11,7 +11,6 @@ import zhuangyan.timeplanning.view.renderers.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.net.URI;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,12 +83,9 @@ public class MainApplicationUI extends JFrame {
         JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         JButton settingsBtn = new JButton("Settings");
         settingsBtn.addActionListener(e -> openSettings());
-        JButton helpBtn = new JButton("Help");
-        helpBtn.addActionListener(e -> showHelp());
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.addActionListener(e -> logout());
         topRightPanel.add(settingsBtn);
-        topRightPanel.add(helpBtn);
         topRightPanel.add(logoutBtn);
         topPanel.add(topRightPanel, BorderLayout.EAST);
 
@@ -474,15 +470,6 @@ public class MainApplicationUI extends JFrame {
 
             // Update Table Layout and Content
             rebuildTimetableModel();
-        }
-    }
-
-    // TODO: Setup a documentation Page.
-    private void showHelp() {
-        try {
-            Desktop.getDesktop().browse(new URI("https://your-docs-url.com"));
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Help documentation available at https://your-docs-url.com");
         }
     }
 
