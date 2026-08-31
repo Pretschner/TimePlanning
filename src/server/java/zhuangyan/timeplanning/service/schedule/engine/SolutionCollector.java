@@ -7,6 +7,7 @@ import zhuangyan.timeplanning.service.schedule.ScheduleFilter;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -43,14 +44,15 @@ public class SolutionCollector extends CpSolverSolutionCallback {
             ScoredSolution solution = new ScoredSolution(slotsCopy, score, violations);
             if (bestSolutions.size() < storedSolutions) {
                 bestSolutions.add(solution);
-            } else if (compare(solution, bestSolutions.peek()) < 0) {
+            }
+            // Sorted in Ascending Order (worst < bad < good < best)
+            else if (compare(bestSolutions.peek(), solution) < 0) {
                 bestSolutions.poll();
                 bestSolutions.add(solution);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
-            System.err.println("Something went wrong in SatEngine.SolutionStore. Please investigate!");
         }
     }
 
@@ -63,15 +65,19 @@ public class SolutionCollector extends CpSolverSolutionCallback {
         return slotsCopy;
     }
 
+    // a < b <=> b.violations() < a.violations() (if !=) or a.score() < b.score() (if ==)
     private int compare(ScoredSolution a, ScoredSolution b) {
-        int violations = Integer.compare(a.violations(), b.violations());
+        int violations = Integer.compare(b.violations(), a.violations());
         if (violations != 0) {
             return violations;
         }
-        return Double.compare(b.score(), a.score());
+        return Double.compare(a.score(), b.score());
     }
 
+    // Descending Order (Head: best -> Tail: worst)
     public List<ScoredSolution> bestSchedules() {
-        return new ArrayList<>(bestSolutions);
+        ArrayList<ScoredSolution> solutions = new ArrayList<>(bestSolutions);
+        Collections.reverse(solutions);
+        return solutions;
     }
 }
