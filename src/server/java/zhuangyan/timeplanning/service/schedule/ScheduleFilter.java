@@ -77,6 +77,7 @@ public class ScheduleFilter {
 
     private ScheduledTask getPreviousSource(ScheduledTask target, List<ScheduledTask> schedule, String sourceGroup) {
         ScheduledTask previousSource = null;
+        ScheduledTask fallBack = null;
 
         for (ScheduledTask candidate : schedule) {
             if (!candidate.task().group().trim().toLowerCase(Locale.ROOT).equals(sourceGroup)) {
@@ -84,21 +85,12 @@ public class ScheduleFilter {
             }
             if (candidate.startSlot() < target.startSlot()) {
                 previousSource = candidate;
+            } else {
+                fallBack = candidate;
             }
         }
 
-        // Wraparound case:
-        // no source before target -> use last source
-        if (previousSource == null) {
-            for (ScheduledTask candidate : schedule) {
-                if (!candidate.task().group().trim().toLowerCase(Locale.ROOT).equals(sourceGroup)) {
-                    continue;
-                }
-                previousSource = candidate;
-            }
-        }
-
-        return previousSource;
+        return previousSource != null ? previousSource : fallBack;
     }
 
     private List<ScheduledTask> convert(List<Integer> slots, List<Task> tasks) {
