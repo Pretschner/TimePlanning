@@ -33,21 +33,35 @@ public class SolutionCollector extends CpSolverSolutionCallback {
         this.strategy = strategy;
     }
 
+    // Internal flag: Short Circuit the filter computation if all (-> the worst) solutions have 0 violations
+    // -> use filter.accept() + violation > 0 -> no score and eviction
+    private boolean shortCircuit = false;
+
     @Override
     public void onSolutionCallback() {
         try {
             List<Integer> slotsCopy = copySlots(variables.startSlots());
+
+            // Kick solutions with > 0 violations out if the best solutions already have 0 violations at most
+            if (shortCircuit && !filter.zeroViolations(slotsCopy, tasks)) return;
+
             // Evaluate using filter and strategy.
-            int violations = filter.amountViolations(slotsCopy, tasks);
+            int violations = shortCircuit ? 0 : filter.amountViolations(slotsCopy, tasks);
             double score = strategy != null ? strategy.score(slotsCopy, tasks) : 0.0;
+
             // Store in bestSolutions.
             ScoredSolution solution = new ScoredSolution(slotsCopy, score, violations);
             if (bestSolutions.size() < storedSolutions) {
                 bestSolutions.add(solution);
             }
-            // Sorted in Ascending Order (worst < bad < good < best)
-            else if (compare(bestSolutions.peek(), solution) < 0) {
-                bestSolutions.poll();
+            // Sorted in Ascending Order (worst < bad < good < best) -> if worst < current
+            else if (compare(bestSolutions.peek(), solution) < 0) { // Not null, since size() == storedSolutions
+                if (!shortCircuit) {
+                    shortCircuit = bestSolutions.poll().violations() == 0;
+                }
+                else {
+                    bestSolutions.poll();
+                }
                 bestSolutions.add(solution);
             }
         } catch (Exception e) {
