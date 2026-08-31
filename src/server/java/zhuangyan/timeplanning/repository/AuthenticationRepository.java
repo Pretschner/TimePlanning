@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AuthenticationRepository {
     private final AtomicLong nextUserId = new AtomicLong(1);
     // Login
-    private final Map<String, String> passwords; // username -> password
+    private final Map<String, Integer> passwords; // username -> hash(password)
     // Create/Delete Account
     private final Map<String, Long> userIds; // username -> userId
     // Login and Access
@@ -25,9 +25,9 @@ public class AuthenticationRepository {
     }
 
     public boolean authenticate(String username, String password) {
-        String storedPassword = passwords.get(username);
-        if (storedPassword == null) return false;
-        return storedPassword.equals(password); // Replace with BCrypt later
+        Integer storedPasswordHash = passwords.get(username);
+        if (storedPasswordHash == null) return false;
+        return storedPasswordHash.equals(password.hashCode());
     }
 
     public String storeToken(String token, String username) {
@@ -41,7 +41,7 @@ public class AuthenticationRepository {
     }
 
     public boolean saveUser(String username, String password) {
-        String existing = passwords.putIfAbsent(username, password);
+        Integer existing = passwords.putIfAbsent(username, password.hashCode());
         if (existing != null) return false; // already exists
         userIds.put(username, nextUserId.getAndIncrement());
         return true;
