@@ -35,9 +35,12 @@ public class ScheduleController {
                 .toEntity(new ParameterizedTypeReference<List<Schedule>>() {
                 })
                 .getBody();
-        schedules.clear();
-        schedules.addAll(addedSchedules);
-        schedulesConsumer.accept(schedules);
+
+        synchronized (this) {
+            schedules.clear();
+            schedules.addAll(addedSchedules);
+        }
+        schedulesConsumer.accept(getSnapshot());
     }
 
     public void editSchedule(Schedule schedule, Consumer<List<Schedule>> schedulesConsumer) {
@@ -49,7 +52,7 @@ public class ScheduleController {
                 .toEntity(Schedule.class)
                 .getBody();
         schedules.replaceAll(oldSchedule -> oldSchedule.id().equals(updatedSchedule.id()) ? updatedSchedule : oldSchedule);
-        schedulesConsumer.accept(schedules);
+        schedulesConsumer.accept(getSnapshot());
     }
 
     public void deleteSchedule(Schedule schedule, Consumer<List<Schedule>> schedulesConsumer) {
@@ -59,8 +62,11 @@ public class ScheduleController {
                 .retrieve()
                 .toEntity(Schedule.class)
                 .getBody();
-        schedules.removeIf(t -> t.id().equals(deletedSchedule.id()));
-        schedulesConsumer.accept(schedules);
+        
+        synchronized (this) {
+            schedules.removeIf(t -> t.id().equals(deletedSchedule.id()));
+        }
+        schedulesConsumer.accept(getSnapshot());
     }
 
     public void getAllSchedules(Consumer<List<Schedule>> schedulesConsumer) {
@@ -70,8 +76,16 @@ public class ScheduleController {
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<List<Schedule>>() {})
                 .getBody();
-        schedules.clear();
-        schedules.addAll(receivedSchedules);
-        schedulesConsumer.accept(schedules);
+
+        synchronized (this) {
+            schedules.clear();
+            schedules.addAll(receivedSchedules);
+        }
+        schedulesConsumer.accept(getSnapshot());
     }
+
+    private synchronized List<Schedule> getSnapshot() {
+        return new ArrayList<>(schedules);
+    }
+
 }

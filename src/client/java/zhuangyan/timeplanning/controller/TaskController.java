@@ -33,8 +33,11 @@ public class TaskController {
                 .retrieve()
                 .toEntity(Task.class)
                 .getBody();
-        tasks.add(addedTask);
-        tasksConsumer.accept(tasks);
+
+        synchronized (this) {
+            tasks.add(addedTask);
+        }
+        tasksConsumer.accept(getSnapshot());
     }
 
     public void editTask(Task task, Consumer<List<Task>> tasksConsumer) {
@@ -45,8 +48,11 @@ public class TaskController {
                 .retrieve()
                 .toEntity(Task.class)
                 .getBody();
-        tasks.replaceAll(oldTask -> oldTask.id().equals(updatedTask.id()) ? updatedTask : oldTask);
-        tasksConsumer.accept(tasks);
+
+        synchronized (this) {
+            tasks.replaceAll(oldTask -> oldTask.id().equals(updatedTask.id()) ? updatedTask : oldTask);
+        }
+        tasksConsumer.accept(getSnapshot());
     }
 
     public void deleteTask(Task task, Consumer<List<Task>> tasksConsumer) {
@@ -56,8 +62,11 @@ public class TaskController {
                 .retrieve()
                 .toEntity(Task.class)
                 .getBody();
-        tasks.removeIf(t -> t.id().equals(deletedTask.id()));
-        tasksConsumer.accept(tasks);
+
+        synchronized (this) {
+            tasks.removeIf(t -> t.id().equals(deletedTask.id()));
+        }
+        tasksConsumer.accept(getSnapshot());
     }
 
     public void getAllTasks(Consumer<List<Task>> tasksConsumer) {
@@ -67,8 +76,15 @@ public class TaskController {
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<List<Task>>() {})
                 .getBody();
-        tasks.clear();
-        tasks.addAll(receivedTasks);
-        tasksConsumer.accept(tasks);
+
+        synchronized (this) {
+            tasks.clear();
+            tasks.addAll(receivedTasks);
+        }
+        tasksConsumer.accept(getSnapshot());
+    }
+
+    private synchronized List<Task> getSnapshot() {
+        return new ArrayList<>(tasks);
     }
 }

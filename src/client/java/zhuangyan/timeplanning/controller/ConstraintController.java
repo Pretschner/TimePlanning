@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 import zhuangyan.timeplanning.model.Config;
 import zhuangyan.timeplanning.model.GroupConstraint;
+import zhuangyan.timeplanning.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,11 @@ public class ConstraintController {
                 .retrieve()
                 .toEntity(GroupConstraint.class)
                 .getBody();
-        constraints.add(addedGroupConstraint);
-        constraintsConsumer.accept(constraints);
+
+        synchronized (this) {
+            constraints.add(addedGroupConstraint);
+        }
+        constraintsConsumer.accept(getSnapshot());
     }
 
     public void editGroupConstraint(GroupConstraint constraint, Consumer<List<GroupConstraint>> constraintsConsumer) {
@@ -44,8 +48,11 @@ public class ConstraintController {
                 .retrieve()
                 .toEntity(GroupConstraint.class)
                 .getBody();
-        constraints.replaceAll(oldGroupConstraint -> oldGroupConstraint.id().equals(updatedGroupConstraint.id()) ? updatedGroupConstraint : oldGroupConstraint);
-        constraintsConsumer.accept(constraints);
+
+        synchronized (this) {
+            constraints.replaceAll(oldGroupConstraint -> oldGroupConstraint.id().equals(updatedGroupConstraint.id()) ? updatedGroupConstraint : oldGroupConstraint);
+        }
+        constraintsConsumer.accept(getSnapshot());
     }
 
     public void deleteGroupConstraint(GroupConstraint constraint, Consumer<List<GroupConstraint>> constraintsConsumer) {
@@ -55,8 +62,11 @@ public class ConstraintController {
                 .retrieve()
                 .toEntity(GroupConstraint.class)
                 .getBody();
-        constraints.removeIf(t -> t.id().equals(deletedGroupConstraint.id()));
-        constraintsConsumer.accept(constraints);
+
+        synchronized (this) {
+            constraints.removeIf(t -> t.id().equals(deletedGroupConstraint.id()));
+        }
+        constraintsConsumer.accept(getSnapshot());
     }
 
     public void getAllConstraints(Consumer<List<GroupConstraint>> constraintsConsumer) {
@@ -66,8 +76,16 @@ public class ConstraintController {
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<List<GroupConstraint>>() {})
                 .getBody();
-        constraints.clear();
-        constraints.addAll(receivedConstraints);
-        constraintsConsumer.accept(constraints);
+
+        synchronized (this) {
+            constraints.clear();
+            constraints.addAll(receivedConstraints);
+        }
+        constraintsConsumer.accept(getSnapshot());
     }
+
+    private synchronized List<GroupConstraint> getSnapshot() {
+        return new ArrayList<>(constraints);
+    }
+
 }
