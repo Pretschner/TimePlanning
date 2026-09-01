@@ -3,9 +3,7 @@ package zhuangyan.timeplanning.view;
 import zhuangyan.timeplanning.controller.*;
 import zhuangyan.timeplanning.model.*;
 import zhuangyan.timeplanning.time.TimetableGrid;
-import zhuangyan.timeplanning.view.dialogs.ConstraintDialog;
-import zhuangyan.timeplanning.view.dialogs.ScheduleDialog;
-import zhuangyan.timeplanning.view.dialogs.TaskDialog;
+import zhuangyan.timeplanning.view.dialogs.*;
 import zhuangyan.timeplanning.view.renderers.*;
 
 import javax.swing.*;
@@ -50,6 +48,7 @@ public class MainApplicationUI extends JFrame {
     private JButton addBtn;
     private JButton editBtn;
     private JButton deleteBtn;
+    private JButton templateButton;
 
     // Selected Tasks/Constraints
     private Task selectedTask = null;
@@ -116,6 +115,9 @@ public class MainApplicationUI extends JFrame {
         deleteBtn.setEnabled(false);
         deleteBtn.addActionListener(e -> handleDelete());
 
+        templateButton = new JButton("Templates");
+        templateButton.addActionListener(e -> handleTemplate());
+
         JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
         sep.setPreferredSize(new Dimension(1, 28));
 
@@ -124,6 +126,7 @@ public class MainApplicationUI extends JFrame {
         bottomPanel.add(addBtn);
         bottomPanel.add(editBtn);
         bottomPanel.add(deleteBtn);
+        bottomPanel.add(templateButton);
 
         // Assemble
         setLayout(new BorderLayout());
@@ -300,6 +303,11 @@ public class MainApplicationUI extends JFrame {
         else JOptionPane.showMessageDialog(this, "Please select an item to delete.");
     }
 
+    private void handleTemplate() {
+        int idx = tabbedPane.getSelectedIndex();
+        if (idx == 0) TaskTemplateDialog.show(this, controllerCaller::callAddTask);
+        else ConstraintTemplateDialog.show(this, controllerCaller::callAddConstraint); // idx == 1
+    }
 
     // UI UPDATES
 
