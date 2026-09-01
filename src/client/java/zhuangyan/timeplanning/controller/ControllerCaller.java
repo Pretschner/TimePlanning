@@ -1,11 +1,9 @@
-package zhuangyan.timeplanning.view;
+package zhuangyan.timeplanning.controller;
 
-import zhuangyan.timeplanning.controller.ConstraintController;
-import zhuangyan.timeplanning.controller.ScheduleController;
-import zhuangyan.timeplanning.controller.TaskController;
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.model.Task;
+import zhuangyan.timeplanning.view.MainApplicationUI;
 
 import javax.swing.*;
 import java.util.concurrent.CountDownLatch;
