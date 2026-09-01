@@ -36,27 +36,6 @@ public class ScheduleResource {
         return ResponseEntity.ok(createdSchedule);
     }
 
-    @PutMapping("/schedules/{id}")
-    public ResponseEntity<Schedule> updateSchedule(@RequestBody Schedule schedule, @PathVariable long id, @RequestHeader("Authorization") String authHeader) {
-        if (schedule.id() != id) {
-            return ResponseEntity.badRequest().build();
-        }
-        long userId = authenticationService.getUserId(authHeader);
-        Schedule updateSchedule = scheduleService.updateSchedule(schedule, id, userId);
-        return ResponseEntity.ok(updateSchedule);
-    }
-
-    @DeleteMapping("/schedules/{id}")
-    public ResponseEntity<Schedule> deleteSchedule(@PathVariable long id, @RequestHeader("Authorization") String authHeader) {
-        if (id <= 0) {
-            return ResponseEntity.badRequest().build();
-        }
-        long userId = authenticationService.getUserId(authHeader);
-        Schedule deletedSchedule = scheduleService.deleteSchedule(id, userId);
-        return ResponseEntity.ok(deletedSchedule);
-    }
-
-
     @GetMapping("/schedules")
     public ResponseEntity<List<Schedule>> getSchedules(@RequestHeader("Authorization") String authHeader) {
         long userId = authenticationService.getUserId(authHeader);

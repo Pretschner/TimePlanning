@@ -43,32 +43,6 @@ public class ScheduleController {
         schedulesConsumer.accept(getSnapshot());
     }
 
-    public void editSchedule(Schedule schedule, Consumer<List<Schedule>> schedulesConsumer) {
-        Schedule updatedSchedule = restClient.put()
-                .uri("schedules/" + schedule.id())
-                .header(HttpHeaders.AUTHORIZATION, TokenStore.getHeader())
-                .body(schedule)
-                .retrieve()
-                .toEntity(Schedule.class)
-                .getBody();
-        schedules.replaceAll(oldSchedule -> oldSchedule.id().equals(updatedSchedule.id()) ? updatedSchedule : oldSchedule);
-        schedulesConsumer.accept(getSnapshot());
-    }
-
-    public void deleteSchedule(Schedule schedule, Consumer<List<Schedule>> schedulesConsumer) {
-        Schedule deletedSchedule = restClient.delete()
-                .uri("schedules/" + schedule.id())
-                .header(HttpHeaders.AUTHORIZATION, TokenStore.getHeader())
-                .retrieve()
-                .toEntity(Schedule.class)
-                .getBody();
-        
-        synchronized (this) {
-            schedules.removeIf(t -> t.id().equals(deletedSchedule.id()));
-        }
-        schedulesConsumer.accept(getSnapshot());
-    }
-
     public void getAllSchedules(Consumer<List<Schedule>> schedulesConsumer) {
         List<Schedule> receivedSchedules = restClient.get()
                 .uri("schedules")

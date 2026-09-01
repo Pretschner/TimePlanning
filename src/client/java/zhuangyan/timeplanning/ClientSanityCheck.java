@@ -208,24 +208,6 @@ public class ClientSanityCheck {
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
-            
-            // Delete Schedule
-            try {
-                System.out.println("\n--- Testing Delete Schedule ---");
-                scheduleController.getAllSchedules(schedules -> {
-                    if (!schedules.isEmpty()) {
-                        Schedule toDelete = schedules.get(0);
-                        scheduleController.deleteSchedule(toDelete, scheds -> {
-                            System.out.println("Schedule deleted successfully");
-                            scheds.forEach(s -> System.out.println("  - Schedule: " + s));
-                        });
-                    } else {
-                        System.out.println("No schedules to delete");
-                    }
-                });
-            } catch (Exception e) {
-                errorHandler.accept(e);
-            }
 
         } finally {
             
