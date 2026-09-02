@@ -20,11 +20,11 @@ public class TaskDialog {
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));
         formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        final JTextField nameField = new JTextField(12);
-        final JTextField groupField = new JTextField(12);
-        final JTextField durationField = new JTextField(12);
-        final JTextField earliestField = new JTextField(12);
-        final JTextField latestField = new JTextField(12);
+        final JTextField nameField = new JTextField();
+        final JTextField groupField = new JTextField();
+        final JTextField durationField = new JTextField();
+        final JTextField earliestField = new JTextField();
+        final JTextField latestField = new JTextField();
 
         formPanel.add(new JLabel("Name:"));
         formPanel.add(nameField);
@@ -47,9 +47,9 @@ public class TaskDialog {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton execute = new JButton(isNew ? "Add" : "Update");
-        JButton cancelBtn = new JButton("Cancel");
+        JButton cancel = new JButton("Cancel");
         buttonPanel.add(execute);
-        buttonPanel.add(cancelBtn);
+        buttonPanel.add(cancel);
 
         dialog.setLayout(new BorderLayout());
         dialog.add(formPanel, BorderLayout.CENTER);
@@ -94,7 +94,7 @@ public class TaskDialog {
             }
         });
 
-        cancelBtn.addActionListener(e -> dialog.dispose());
+        cancel.addActionListener(e -> dialog.dispose());
 
         dialog.setVisible(true);
 

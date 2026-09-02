@@ -9,17 +9,17 @@ import java.time.Duration;
 import java.util.function.Consumer;
 
 public class ConstraintDialog {
-    public static void show(MainApplicationUI parent, GroupConstraint existing, Consumer<GroupConstraint> existingConsumer) {
+    public static void show(MainApplicationUI parent, GroupConstraint existing, Consumer<GroupConstraint> constraintConsumer) {
         boolean isNew = existing == null;
         JDialog dialog = new JDialog(parent, isNew ? "Add New Constraint" : "Update Constraint", true);
 
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));
         formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        final JTextField sourceField = new JTextField(12);
-        final JTextField targetField = new JTextField(12);
-        final JTextField minField = new JTextField(12);
-        final JTextField maxField = new JTextField(12);
+        final JTextField sourceField = new JTextField();
+        final JTextField targetField = new JTextField();
+        final JTextField minField = new JTextField();
+        final JTextField maxField = new JTextField();
 
         formPanel.add(new JLabel("Source Group:"));
         formPanel.add(sourceField);
@@ -39,9 +39,9 @@ public class ConstraintDialog {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton execute = new JButton(isNew ? "Add" : "Update");
-        JButton cancelBtn = new JButton("Cancel");
+        JButton cancel = new JButton("Cancel");
         buttonPanel.add(execute);
-        buttonPanel.add(cancelBtn);
+        buttonPanel.add(cancel);
 
         dialog.setLayout(new BorderLayout());
         dialog.add(formPanel, BorderLayout.CENTER);
@@ -84,12 +84,12 @@ public class ConstraintDialog {
             }
         });
 
-        cancelBtn.addActionListener(e -> dialog.dispose());
+        cancel.addActionListener(e -> dialog.dispose());
 
         dialog.setVisible(true);
 
         if (result[0] != null) {
-            existingConsumer.accept(result[0]);
+            constraintConsumer.accept(result[0]);
         }
     }
 }
