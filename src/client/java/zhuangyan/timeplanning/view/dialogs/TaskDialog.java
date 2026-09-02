@@ -4,6 +4,7 @@ import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.model.TimePoint;
 import zhuangyan.timeplanning.model.TimeWindow;
 import zhuangyan.timeplanning.view.MainApplicationUI;
+import zhuangyan.timeplanning.view.dialogs.formpanels.TaskFormPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,32 +18,14 @@ public class TaskDialog {
         boolean isNew = existing == null;
         JDialog dialog = new JDialog(parent, isNew ? "Add New Task" : "Update Task", true);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        final JTextField nameField = new JTextField();
-        final JTextField groupField = new JTextField();
-        final JTextField durationField = new JTextField();
-        final JTextField earliestField = new JTextField();
-        final JTextField latestField = new JTextField();
-
-        formPanel.add(new JLabel("Name:"));
-        formPanel.add(nameField);
-        formPanel.add(new JLabel("Group:"));
-        formPanel.add(groupField);
-        formPanel.add(new JLabel("Duration (min):"));
-        formPanel.add(durationField);
-        formPanel.add(new JLabel("Earliest Start (DDD, HH:MM):"));
-        formPanel.add(earliestField);
-        formPanel.add(new JLabel("Latest End (DDD, HH:MM):"));
-        formPanel.add(latestField);
+        TaskFormPanel formPanel = new TaskFormPanel(false);
 
         if (!isNew) {
-            nameField.setText(existing.name());
-            groupField.setText(existing.group());
-            durationField.setText("" + existing.duration().toMinutes());
-            earliestField.setText(existing.timeWindow().earliestStart().toString());
-            latestField.setText(existing.timeWindow().latestEnd().toString());
+            formPanel.getNameField().setText(existing.name());
+            formPanel.getGroupField().setText(existing.group());
+            formPanel.getDurationField().setText("" + existing.duration().toMinutes());
+            formPanel.getEarliestField().setText(existing.timeWindow().earliestStart().toString());
+            formPanel.getLatestField().setText(existing.timeWindow().latestEnd().toString());
         }
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -61,17 +44,17 @@ public class TaskDialog {
         final Task[] result = {null};
 
         execute.addActionListener(e -> {
-            String name = nameField.getText().trim();
-            String durStr = durationField.getText().trim();
+            String name = formPanel.getNameField().getText().trim();
+            String durStr = formPanel.getDurationField().getText().trim();
 
             if (name.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Name is required.");
-                nameField.requestFocus();
+                formPanel.getNameField().requestFocus();
                 return;
             }
             if (durStr.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Duration is required.");
-                durationField.requestFocus();
+                formPanel.getDurationField().requestFocus();
                 return;
             }
 
@@ -80,11 +63,11 @@ public class TaskDialog {
                 int mins = Integer.parseInt(durStr);
 
                 // Parsing TimeWindow
-                TimePoint start = parseTimePoint(earliestField), end = parseTimePoint(latestField);
+                TimePoint start = parseTimePoint(formPanel.getEarliestField()), end = parseTimePoint(formPanel.getLatestField());
                 TimeWindow tw = new TimeWindow(start, end);
 
                 // Assembling Result
-                result[0] = new Task(existing != null ? existing.id() : null, name, groupField.getText().trim(),
+                result[0] = new Task(existing != null ? existing.id() : null, name, formPanel.getGroupField().getText().trim(),
                         Duration.ofMinutes(mins), tw);
                 dialog.dispose();
             } catch (NumberFormatException ex) {

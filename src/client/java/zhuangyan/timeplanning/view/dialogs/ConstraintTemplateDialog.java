@@ -2,6 +2,7 @@ package zhuangyan.timeplanning.view.dialogs;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.view.MainApplicationUI;
+import zhuangyan.timeplanning.view.dialogs.formpanels.ConstraintFormPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,22 +15,7 @@ public class ConstraintTemplateDialog {
     public static void show(MainApplicationUI parent, Consumer<GroupConstraint> constraintConsumer) {
         JDialog dialog = new JDialog(parent, "Generate from Template", true);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        final JTextField srcField = new JTextField();
-        final JTextField trgField = new JTextField();
-        final JTextField minField = new JTextField();
-        final JTextField maxField = new JTextField();
-
-        formPanel.add(new JLabel("Source Group (1st, 2nd, ...):"));
-        formPanel.add(srcField);
-        formPanel.add(new JLabel("Target Group (1st, 2nd, ...):"));
-        formPanel.add(trgField);
-        formPanel.add(new JLabel("Min. Gap (min):"));
-        formPanel.add(minField);
-        formPanel.add(new JLabel("Max. Gap (min):"));
-        formPanel.add(maxField);
+        ConstraintFormPanel formPanel = new ConstraintFormPanel(true);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton execute = new JButton("Generate");
@@ -47,24 +33,24 @@ public class ConstraintTemplateDialog {
         final List<GroupConstraint> result = new ArrayList<>();
 
         execute.addActionListener(e -> {
-            String[] srcGroup = srcField.getText().trim().split(", ");
-            String[] trgGroup = trgField.getText().trim().split(", ");
-            String minGap = minField.getText().trim();
-            String maxGap = maxField.getText().trim();
+            String[] srcGroup = formPanel.getSourceField().getText().trim().split(", ");
+            String[] trgGroup = formPanel.getTargetField().getText().trim().split(", ");
+            String minGap = formPanel.getMinField().getText().trim();
+            String maxGap = formPanel.getMaxField().getText().trim();
 
             if (srcGroup.length == 0) {
                 JOptionPane.showMessageDialog(dialog, "Source Group is required.");
-                srcField.requestFocus();
+                formPanel.getSourceField().requestFocus();
                 return;
             }
             if (trgGroup.length == 0) {
                 JOptionPane.showMessageDialog(dialog, "Target Group is required.");
-                trgField.requestFocus();
+                formPanel.getTargetField().requestFocus();
                 return;
             }
             if (minGap.isEmpty() && maxGap.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Minimum or Maximum Gap is required.");
-                minField.requestFocus();
+                formPanel.getMinField().requestFocus();
                 return;
             }
 

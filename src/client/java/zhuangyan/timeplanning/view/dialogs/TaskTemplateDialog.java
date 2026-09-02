@@ -4,6 +4,7 @@ import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.model.TimePoint;
 import zhuangyan.timeplanning.model.TimeWindow;
 import zhuangyan.timeplanning.view.MainApplicationUI;
+import zhuangyan.timeplanning.view.dialogs.formpanels.TaskFormPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,25 +46,7 @@ public class TaskTemplateDialog {
         checkBoxPanel.add(rowWeekdays);
         checkBoxPanel.add(rowWeekends);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        final JTextField nameField = new JTextField();
-        final JTextField groupField = new JTextField();
-        final JTextField durationField = new JTextField();
-        final JTextField earliestField = new JTextField();
-        final JTextField latestField = new JTextField();
-
-        formPanel.add(new JLabel("Name:"));
-        formPanel.add(nameField);
-        formPanel.add(new JLabel("Group:"));
-        formPanel.add(groupField);
-        formPanel.add(new JLabel("Duration (min):"));
-        formPanel.add(durationField);
-        formPanel.add(new JLabel("Earliest Start (HH:MM):"));
-        formPanel.add(earliestField);
-        formPanel.add(new JLabel("Latest End (HH:MM):"));
-        formPanel.add(latestField);
+        TaskFormPanel formPanel = new TaskFormPanel(true);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton execute = new JButton("Generate");
@@ -82,49 +65,49 @@ public class TaskTemplateDialog {
         final List<Task> result = new ArrayList<>();
 
         execute.addActionListener(e -> {
-            String name = nameField.getText().trim();
-            String durStr = durationField.getText().trim();
+            String name = formPanel.getNameField().getText().trim();
+            String durStr = formPanel.getDurationField().getText().trim();
 
             if (name.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Name is required.");
-                nameField.requestFocus();
+                formPanel.getNameField().requestFocus();
                 return;
             }
             if (durStr.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Duration is required.");
-                durationField.requestFocus();
+                formPanel.getDurationField().requestFocus();
                 return;
             }
 
             try {
                 int mins = Integer.parseInt(durStr);
                 if (mondayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(earliestField, latestField, DayOfWeek.MONDAY);
-                    result.add(new Task(null, name, groupField.getText().trim(), Duration.ofMinutes(mins), tw));
+                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.MONDAY);
+                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
                 if (tuesdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(earliestField, latestField, DayOfWeek.TUESDAY);
-                    result.add(new Task(null, name, groupField.getText().trim(), Duration.ofMinutes(mins), tw));
+                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.TUESDAY);
+                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
                 if (wednesdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(earliestField, latestField, DayOfWeek.WEDNESDAY);
-                    result.add(new Task(null, name, groupField.getText().trim(), Duration.ofMinutes(mins), tw));
+                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.WEDNESDAY);
+                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
                 if (thursdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(earliestField, latestField, DayOfWeek.THURSDAY);
-                    result.add(new Task(null, name, groupField.getText().trim(), Duration.ofMinutes(mins), tw));
+                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.THURSDAY);
+                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
                 if (fridayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(earliestField, latestField, DayOfWeek.FRIDAY);
-                    result.add(new Task(null, name, groupField.getText().trim(), Duration.ofMinutes(mins), tw));
+                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.FRIDAY);
+                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
                 if (saturdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(earliestField, latestField, DayOfWeek.SATURDAY);
-                    result.add(new Task(null, name, groupField.getText().trim(), Duration.ofMinutes(mins), tw));
+                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.SATURDAY);
+                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
                 if (sundayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(earliestField, latestField, DayOfWeek.SUNDAY);
-                    result.add(new Task(null, name, groupField.getText().trim(), Duration.ofMinutes(mins), tw));
+                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.SUNDAY);
+                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
                 dialog.dispose();
             } catch (NumberFormatException ex) {

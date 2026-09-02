@@ -2,6 +2,7 @@ package zhuangyan.timeplanning.view.dialogs;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.view.MainApplicationUI;
+import zhuangyan.timeplanning.view.dialogs.formpanels.ConstraintFormPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,28 +14,13 @@ public class ConstraintDialog {
         boolean isNew = existing == null;
         JDialog dialog = new JDialog(parent, isNew ? "Add New Constraint" : "Update Constraint", true);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        final JTextField sourceField = new JTextField();
-        final JTextField targetField = new JTextField();
-        final JTextField minField = new JTextField();
-        final JTextField maxField = new JTextField();
-
-        formPanel.add(new JLabel("Source Group:"));
-        formPanel.add(sourceField);
-        formPanel.add(new JLabel("Target Group:"));
-        formPanel.add(targetField);
-        formPanel.add(new JLabel("Minimum Gap (min):"));
-        formPanel.add(minField);
-        formPanel.add(new JLabel("Maximum Gap (min):"));
-        formPanel.add(maxField);
+        ConstraintFormPanel formPanel = new ConstraintFormPanel(false);
 
         if (!isNew) {
-            sourceField.setText(existing.sourceGroup());
-            targetField.setText(existing.targetGroup());
-            minField.setText(existing.minimumGap() != null ? "" + existing.minimumGap().toMinutes() : "");
-            maxField.setText(existing.maximumGap() != null ? "" + existing.maximumGap().toMinutes() : "");
+            formPanel.getSourceField().setText(existing.sourceGroup());
+            formPanel.getTargetField().setText(existing.targetGroup());
+            formPanel.getMinField().setText(existing.minimumGap() != null ? "" + existing.minimumGap().toMinutes() : "");
+            formPanel.getMaxField().setText(existing.maximumGap() != null ? "" + existing.maximumGap().toMinutes() : "");
         }
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -53,24 +39,24 @@ public class ConstraintDialog {
         final GroupConstraint[] result = {null};
 
         execute.addActionListener(e -> {
-            String srcGroup = sourceField.getText().trim();
-            String trgGroup = targetField.getText().trim();
-            String minGap = minField.getText().trim();
-            String maxGap = maxField.getText().trim();
+            String srcGroup = formPanel.getSourceField().getText().trim();
+            String trgGroup = formPanel.getTargetField().getText().trim();
+            String minGap = formPanel.getMinField().getText().trim();
+            String maxGap = formPanel.getMaxField().getText().trim();
 
             if (srcGroup.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Source Group is required.");
-                sourceField.requestFocus();
+                formPanel.getSourceField().requestFocus();
                 return;
             }
             if (trgGroup.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Target Group is required.");
-                targetField.requestFocus();
+                formPanel.getTargetField().requestFocus();
                 return;
             }
             if (minGap.isEmpty() && maxGap.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Minimum or Maximum Gap is required.");
-                minField.requestFocus();
+                formPanel.getMinField().requestFocus();
                 return;
             }
 
