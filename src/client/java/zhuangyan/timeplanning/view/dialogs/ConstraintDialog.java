@@ -2,7 +2,8 @@ package zhuangyan.timeplanning.view.dialogs;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.view.MainApplicationUI;
-import zhuangyan.timeplanning.view.dialogs.formpanels.ConstraintFormPanel;
+import zhuangyan.timeplanning.view.dialogs.panels.ButtonPanel;
+import zhuangyan.timeplanning.view.dialogs.panels.ConstraintFormPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,22 +24,18 @@ public class ConstraintDialog {
             formPanel.getMaxField().setText(existing.maximumGap() != null ? "" + existing.maximumGap().toMinutes() : "");
         }
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton execute = new JButton(isNew ? "Add" : "Update");
-        JButton cancel = new JButton("Cancel");
-        buttonPanel.add(execute);
-        buttonPanel.add(cancel);
+        ButtonPanel buttonPanel = new ButtonPanel(false);
 
         dialog.setLayout(new BorderLayout());
         dialog.add(formPanel, BorderLayout.CENTER);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
         dialog.pack();
         dialog.setLocationRelativeTo(parent);
-        dialog.getRootPane().setDefaultButton(execute);
+        dialog.getRootPane().setDefaultButton(buttonPanel.getExecute());
 
         final GroupConstraint[] result = {null};
 
-        execute.addActionListener(e -> {
+        buttonPanel.getExecute().addActionListener(e -> {
             String srcGroup = formPanel.getSourceField().getText().trim();
             String trgGroup = formPanel.getTargetField().getText().trim();
             String minGap = formPanel.getMinField().getText().trim();
@@ -70,7 +67,7 @@ public class ConstraintDialog {
             }
         });
 
-        cancel.addActionListener(e -> dialog.dispose());
+        buttonPanel.getCancel().addActionListener(e -> dialog.dispose());
 
         dialog.setVisible(true);
 

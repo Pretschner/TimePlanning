@@ -1,4 +1,4 @@
-package zhuangyan.timeplanning.view.dialogs.formpanels;
+package zhuangyan.timeplanning.view.dialogs.panels;
 
 import javax.swing.*;
 import java.awt.*;

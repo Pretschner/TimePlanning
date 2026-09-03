@@ -4,6 +4,7 @@ import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.model.Strategy;
 import zhuangyan.timeplanning.view.MainApplicationUI;
+import zhuangyan.timeplanning.view.dialogs.panels.ButtonPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -118,11 +119,7 @@ public class ScheduleDialog {
         });
 
         // Button Panel
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton gen = new JButton("Generate");
-        JButton cancel = new JButton("Cancel");
-        btnPanel.add(gen);
-        btnPanel.add(cancel);
+        ButtonPanel buttonPanel = new ButtonPanel(true);
 
         // Assemble Dialog with Card and Button Panel
         gbc.gridx = 0; gbc.gridy = 3;
@@ -132,14 +129,14 @@ public class ScheduleDialog {
         gbc.gridx = 0; gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        dialog.add(btnPanel, gbc);
+        dialog.add(buttonPanel, gbc);
 
         dialog.pack();
         dialog.setLocationRelativeTo(parent);
-        dialog.getRootPane().setDefaultButton(gen);
+        dialog.getRootPane().setDefaultButton(buttonPanel.getExecute());
 
         // Generate Action
-        gen.addActionListener(e -> {
+        buttonPanel.getExecute().addActionListener(e -> {
             int solutionCount = (int) solutions.getSelectedItem();
             int searchTime = (int) time.getSelectedItem();
 
@@ -188,7 +185,7 @@ public class ScheduleDialog {
             schedulesConsumer.accept(config);
         });
 
-        cancel.addActionListener(e -> dialog.dispose());
+        buttonPanel.getCancel().addActionListener(e -> dialog.dispose());
 
         dialog.setVisible(true);
     }
