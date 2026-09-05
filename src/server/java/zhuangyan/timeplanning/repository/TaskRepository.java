@@ -11,12 +11,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Repository
 public class TaskRepository {
-    private final Map<Long, Task> tasks; // id -> Task
-    private final Map<Long, Long> taskOwners; // taskId -> userId
+    private final Map<Long, Task> tasks;
+    private final Map<Long, Long> taskOwners;
     private final AtomicLong nextId = new AtomicLong(1);
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public TaskRepository() {
         tasks = new ConcurrentHashMap<>();
@@ -34,26 +36,46 @@ public class TaskRepository {
     }
 
     public Task save(Task task, long userId) {
-        tasks.put(task.id(), task);
-        taskOwners.put(task.id(), userId);
-        return task;
+        lock.writeLock().lock();
+        try {
+            tasks.put(task.id(), task);
+            taskOwners.put(task.id(), userId);
+            return task;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public List<Task> findByUserId(long userId) {
-        return taskOwners.entrySet().stream()
-                .filter(e -> e.getValue() == userId)
-                .map(e -> tasks.get(e.getKey()))
-                .toList();
+        lock.readLock().lock();
+        try {
+            return taskOwners.entrySet().stream()
+                    .filter(e -> e.getValue() == userId)
+                    .map(e -> tasks.get(e.getKey()))
+                    .toList();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public Task deleteById(long id) {
-        Task deletedTask = tasks.remove(id);
-        taskOwners.remove(id);
-        return deletedTask;
+        lock.writeLock().lock();
+        try {
+            Task deletedTask = tasks.remove(id);
+            taskOwners.remove(id);
+            return deletedTask;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Optional<Long> getOwnerId(long id) {
-        return Optional.ofNullable(taskOwners.get(id));
+        lock.readLock().lock();
+        try {
+            return Optional.ofNullable(taskOwners.get(id));
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public long getNextId() {

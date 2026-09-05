@@ -6,17 +6,19 @@ import zhuangyan.timeplanning.service.schedule.CsvParser;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Repository
 public class ConstraintRepository {
-    private final Map<Long, GroupConstraint> constraints; // id -> GroupConstraint
-    private final Map<Long, Long> constraintOwners; // constraintId -> userId
+    private final Map<Long, GroupConstraint> constraints;
+    private final Map<Long, Long> constraintOwners;
     private final AtomicLong nextId = new AtomicLong(1);
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public ConstraintRepository() {
         constraints = new ConcurrentHashMap<>();
@@ -34,26 +36,46 @@ public class ConstraintRepository {
     }
 
     public GroupConstraint save(GroupConstraint constraint, long userId) {
-        constraints.put(constraint.id(), constraint);
-        constraintOwners.put(constraint.id(), userId);
-        return constraint;
+        lock.writeLock().lock();
+        try {
+            constraints.put(constraint.id(), constraint);
+            constraintOwners.put(constraint.id(), userId);
+            return constraint;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public List<GroupConstraint> findByUserId(long userId) {
-        return constraintOwners.entrySet().stream()
-                .filter(e -> e.getValue() == userId)
-                .map(e -> constraints.get(e.getKey()))
-                .toList();
+        lock.readLock().lock();
+        try {
+            return constraintOwners.entrySet().stream()
+                    .filter(e -> e.getValue() == userId)
+                    .map(e -> constraints.get(e.getKey()))
+                    .toList();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public GroupConstraint deleteById(long id) {
-        GroupConstraint deletedGroupConstraint = constraints.remove(id);
-        constraintOwners.remove(id);
-        return deletedGroupConstraint;
+        lock.writeLock().lock();
+        try {
+            GroupConstraint deletedGroupConstraint = constraints.remove(id);
+            constraintOwners.remove(id);
+            return deletedGroupConstraint;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Optional<Long> getOwnerId(long id) {
-        return Optional.ofNullable(constraintOwners.get(id));
+        lock.readLock().lock();
+        try {
+            return Optional.ofNullable(constraintOwners.get(id));
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public long getNextId() {
