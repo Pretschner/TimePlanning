@@ -52,6 +52,16 @@ public class ConstraintTemplateDialog {
             }
 
             try {
+                if (!minGap.isEmpty() && Integer.parseInt(minGap) % parent.getSlotInMinutes() != 0) {
+                    JOptionPane.showMessageDialog(dialog, "Minimum Gap must be divisible by the selected slot length.");
+                    formPanel.getMinField().requestFocus();
+                    return;
+                }
+                if (!maxGap.isEmpty() && Integer.parseInt(maxGap) % parent.getSlotInMinutes() != 0) {
+                    JOptionPane.showMessageDialog(dialog, "Maximum Gap must be divisible by the selected slot length.");
+                    formPanel.getMaxField().requestFocus();
+                    return;
+                }
                 Duration minimumGap = minGap.isEmpty() ? null : Duration.ofMinutes(Integer.parseInt(minGap));
                 Duration maximumGap = maxGap.isEmpty() ? null : Duration.ofMinutes(Integer.parseInt(maxGap));
                 for (int i = 0; i < srcGroup.length; i++) {

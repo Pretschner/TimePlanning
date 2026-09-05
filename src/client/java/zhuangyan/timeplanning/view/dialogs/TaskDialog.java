@@ -59,6 +59,12 @@ public class TaskDialog {
                 // Parsing Duration
                 int mins = Integer.parseInt(durStr);
 
+                if (mins % parent.getSlotInMinutes() != 0) {
+                    JOptionPane.showMessageDialog(dialog, "Duration must be divisible by the selected slot length.");
+                    formPanel.getDurationField().requestFocus();
+                    return;
+                }
+
                 // Parsing TimeWindow
                 TimePoint start = parseTimePoint(formPanel.getEarliestField()), end = parseTimePoint(formPanel.getLatestField());
                 TimeWindow tw = new TimeWindow(start, end);
@@ -69,6 +75,7 @@ public class TaskDialog {
                 dialog.dispose();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(dialog, "Duration must be a number.");
+                formPanel.getDurationField().requestFocus();
             } catch (java.time.format.DateTimeParseException ex) {
                 JOptionPane.showMessageDialog(dialog, "Time format: DDD, HH:MM (e.g. THU, 09:00)");
             }

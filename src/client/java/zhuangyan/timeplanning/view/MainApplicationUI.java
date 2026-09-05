@@ -505,4 +505,8 @@ public class MainApplicationUI extends JFrame {
         nextScheduleButton.setEnabled(currentScheduleIndex < schedulesList.size() - 1);
         scheduleNavLabel.setText("Schedule " + (currentScheduleIndex + 1) + "/" + schedulesList.size());
     }
+
+    public int getSlotInMinutes() {
+        return slotInMinutes;
+    }
 }

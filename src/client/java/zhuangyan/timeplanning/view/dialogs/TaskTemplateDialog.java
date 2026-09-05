@@ -20,6 +20,9 @@ public class TaskTemplateDialog {
     public static void show(MainApplicationUI parent, Consumer<Task> taskConsumer) {
         JDialog dialog = new JDialog(parent, "Generate Tasks from Template", true);
 
+        JPanel checkBoxPanel = new JPanel(new GridLayout(2, 1, 8, 6));
+        checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
         JCheckBox mondayCheck = new JCheckBox("MON");
         JCheckBox tuesdayCheck = new JCheckBox("TUE");
         JCheckBox wednesdayCheck = new JCheckBox("WED");
@@ -28,8 +31,8 @@ public class TaskTemplateDialog {
         JCheckBox saturdayCheck = new JCheckBox("SAT");
         JCheckBox sundayCheck = new JCheckBox("SUN");
 
-        JPanel checkBoxPanel = new JPanel(new GridLayout(2, 1, 8, 6));
-        checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        JCheckBox[] checkBoxes = {mondayCheck, tuesdayCheck, wednesdayCheck, thursdayCheck, fridayCheck, saturdayCheck, sundayCheck};
+        DayOfWeek[] days = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY};
 
         JPanel rowWeekdays = new JPanel();
         rowWeekdays.add(new JLabel("Weekdays:"));
@@ -78,33 +81,18 @@ public class TaskTemplateDialog {
 
             try {
                 int mins = Integer.parseInt(durStr);
-                if (mondayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.MONDAY);
-                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
+
+                if (mins % parent.getSlotInMinutes() != 0) {
+                    JOptionPane.showMessageDialog(dialog, "Duration must be divisible by the selected slot length.");
+                    formPanel.getDurationField().requestFocus();
+                    return;
                 }
-                if (tuesdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.TUESDAY);
-                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
-                }
-                if (wednesdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.WEDNESDAY);
-                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
-                }
-                if (thursdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.THURSDAY);
-                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
-                }
-                if (fridayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.FRIDAY);
-                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
-                }
-                if (saturdayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.SATURDAY);
-                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
-                }
-                if (sundayCheck.isSelected()) {
-                    TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), DayOfWeek.SUNDAY);
-                    result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
+
+                for (int i = 0; i < days.length; i++) {
+                    if (checkBoxes[i].isSelected()) {
+                        TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), days[i]);
+                        result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
+                    }
                 }
                 dialog.dispose();
             } catch (NumberFormatException ex) {
