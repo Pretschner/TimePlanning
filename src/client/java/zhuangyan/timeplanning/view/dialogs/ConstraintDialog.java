@@ -9,6 +9,7 @@ import java.awt.*;
 import java.time.Duration;
 import java.util.function.Consumer;
 
+/** Add/edit a single {@code GroupConstraint} — validates source/target groups and at least one gap. */
 public class ConstraintDialog extends BaseDialog<GroupConstraint> {
     private final GroupConstraint existing;
 

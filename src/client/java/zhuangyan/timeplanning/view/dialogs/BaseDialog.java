@@ -8,6 +8,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** Abstract modal dialog skeleton: form panel + button bar, executes a callback with the constructed entity (or batch). */
 public abstract class BaseDialog<T> {
     protected final JDialog dialog;
     protected final Consumer<T> consumer;

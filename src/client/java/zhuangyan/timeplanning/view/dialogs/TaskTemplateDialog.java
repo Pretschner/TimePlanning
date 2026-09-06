@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** Batch-create tasks for checked weekdays using a shared name/duration/time window. */
 public class TaskTemplateDialog extends BaseDialog<Task> {
     private final DayOfWeek[] days = {
         DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,

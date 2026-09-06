@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** Generic base for REST CRUD: wires RestClient, caches responses, and notifies callers on the background thread. */
 public abstract class CrudController<T> {
     protected final RestClient restClient;
     protected final List<T> cache = new ArrayList<>();

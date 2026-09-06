@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** Fetches and generates timetables; keeps its own cache separate from the generic CRUD base. */
 public class ScheduleController {
 
     private final RestClient restClient;

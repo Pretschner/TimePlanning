@@ -6,10 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalTime;
 
+/** Modal dialog for slot length, day bounds, and strategy selection; values are pulled by {@code MainApplicationUI} on OK. */
 public class SettingsUI extends JDialog implements ActionListener {
-    /**
-     * Settings for Schedule Generation and Representation
-     */
     private JComboBox<Integer> slotBox;
     private JComboBox<String> strategyBox;
     private JTextField lbField, ubField;

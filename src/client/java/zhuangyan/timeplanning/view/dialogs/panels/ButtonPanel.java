@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.view.dialogs.panels;
 import javax.swing.*;
 import java.awt.*;
 
+/** Right-aligned Execute/Cancel buttons; label changes to "Generate" in batch mode. */
 public class ButtonPanel extends JPanel {
     private final JButton execute;
     private final JButton cancel;

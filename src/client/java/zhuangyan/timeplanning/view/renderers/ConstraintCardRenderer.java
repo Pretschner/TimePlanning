@@ -5,6 +5,7 @@ import zhuangyan.timeplanning.model.GroupConstraint;
 import javax.swing.*;
 import java.awt.*;
 
+/** Renders a {@code GroupConstraint} as a card showing "source → target" with min/max gaps and dual color strips. */
 public class ConstraintCardRenderer extends JPanel implements ListCellRenderer<GroupConstraint> {
     private final JLabel titleLabel = new JLabel();
     private final JLabel gapLabel = new JLabel();

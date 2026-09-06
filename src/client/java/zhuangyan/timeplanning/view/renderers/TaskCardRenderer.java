@@ -5,6 +5,7 @@ import zhuangyan.timeplanning.model.Task;
 import javax.swing.*;
 import java.awt.*;
 
+/** Renders a {@code Task} as a card with name, duration/group, time window, and a group-colored left strip. */
 public class TaskCardRenderer extends JPanel implements ListCellRenderer<Task> {
     private final JLabel nameLabel = new JLabel();
     private final JLabel infoLabel = new JLabel();

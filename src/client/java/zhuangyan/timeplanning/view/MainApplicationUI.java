@@ -13,10 +13,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/** The main dashboard: three tabs (Tasks, Constraints, Timetable) with add/edit/delete, template generation, and schedule navigation. */
 public class MainApplicationUI extends JFrame {
-    /**
-     * Main UI handling CRUD operations for Tasks and Constraints and Schedule Generation
-     */
     // Controller Access
     private final ControllerCaller controllerCaller = new ControllerCaller(this);
 

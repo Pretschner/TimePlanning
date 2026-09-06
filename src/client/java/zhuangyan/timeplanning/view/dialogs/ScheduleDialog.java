@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** Builds a {@code ScheduleConfig}: picks solution count, search time, and either one strategy or a weighted combo. */
 public class ScheduleDialog {
     public static void show(MainApplicationUI parent, int slotInMinutes, Consumer<ScheduleConfig> schedulesConsumer) {
         JDialog dialog = new JDialog(parent, "Generate Timetable", true);

@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.view.dialogs.panels;
 import javax.swing.*;
 import java.awt.*;
 
+/** Reusable form for constraint fields; labels adapt for batch (comma-separated) vs single. */
 public class ConstraintFormPanel extends JPanel {
     private final JTextField srcField;
     private final JTextField trgField;

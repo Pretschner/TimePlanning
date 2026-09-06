@@ -8,10 +8,8 @@ import zhuangyan.timeplanning.model.Credentials;
 import javax.swing.*;
 import java.awt.*;
 
+/** Login/signup screen with card layout switching; on success hands off to {@code MainApplicationUI}. */
 public class AuthenticationUI extends JFrame {
-    /**
-     * UI handling Login/Signup on Startup of the Application.
-     */
     private final AuthenticationController authController;
     private final CardLayout cardLayout;
     private final JPanel mainPanel;

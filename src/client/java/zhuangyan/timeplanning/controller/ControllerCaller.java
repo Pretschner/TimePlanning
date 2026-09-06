@@ -8,8 +8,8 @@ import zhuangyan.timeplanning.view.MainApplicationUI;
 import javax.swing.*;
 import java.util.concurrent.CountDownLatch;
 
+/** Bridges UI to controllers: runs network calls in SwingWorker (w. errors/confirmations), and routes callbacks back to the UI. */
 public class ControllerCaller {
-    // CONTROLLER CALLS
     private final TaskController taskController = new TaskController();
     private final ConstraintController constraintController = new ConstraintController();
     private final ScheduleController scheduleController = new ScheduleController();

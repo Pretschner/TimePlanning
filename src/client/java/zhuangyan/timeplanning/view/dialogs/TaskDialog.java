@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.function.Consumer;
 
+/** Add/edit a single {@code Task} — validates name, duration, and time window parsing. */
 public class TaskDialog extends BaseDialog<Task> {
     private final Task existing;
 

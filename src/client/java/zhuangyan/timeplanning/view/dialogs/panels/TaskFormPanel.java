@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.view.dialogs.panels;
 import javax.swing.*;
 import java.awt.*;
 
+/** Reusable form for task fields; optionally adds 7 weekday checkboxes for batch mode. */
 public class TaskFormPanel extends JPanel {
     private final JTextField nameField;
     private final JTextField groupField;

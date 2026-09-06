@@ -6,6 +6,7 @@ import org.springframework.web.client.RestClient;
 import zhuangyan.timeplanning.model.Config;
 import zhuangyan.timeplanning.model.Credentials;
 
+/** Handles login, logout, account creation, and deletion via the REST API. */
 public class AuthenticationController {
 
     private final RestClient restClient;

@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** Standalone test run that exercises the full CRUD cycle against a server. */
 public class ClientSanityCheck {
 
     private final TaskController taskController;

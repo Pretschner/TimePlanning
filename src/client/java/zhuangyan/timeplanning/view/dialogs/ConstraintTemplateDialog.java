@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** Batch-create constraints from comma-separated source/target group lists (cartesian product). */
 public class ConstraintTemplateDialog extends BaseDialog<GroupConstraint> {
 
     public ConstraintTemplateDialog(MainApplicationUI parent, Consumer<GroupConstraint> constraintConsumer) {
