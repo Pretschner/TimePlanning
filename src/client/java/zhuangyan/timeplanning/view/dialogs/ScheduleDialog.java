@@ -1,6 +1,5 @@
 package zhuangyan.timeplanning.view.dialogs;
 
-import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.model.Strategy;
 import zhuangyan.timeplanning.view.MainApplicationUI;

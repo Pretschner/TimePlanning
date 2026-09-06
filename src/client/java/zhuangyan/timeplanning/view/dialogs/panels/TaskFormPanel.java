@@ -10,26 +10,56 @@ public class TaskFormPanel extends JPanel {
     private final JTextField earliestField;
     private final JTextField latestField;
 
-    public TaskFormPanel(boolean batch) {
-        setLayout(new GridLayout(0, 2, 8, 8));
-        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+    private JCheckBox[] checkBoxes;
 
+    public TaskFormPanel(boolean batch) {
         nameField = new JTextField();
         groupField = new JTextField();
         durationField = new JTextField();
         earliestField = new JTextField();
         latestField = new JTextField();
 
-        add(new JLabel("Name:"));
-        add(nameField);
-        add(new JLabel("Group:"));
-        add(groupField);
-        add(new JLabel("Duration (min):"));
-        add(durationField);
-        add(new JLabel("Earliest Start " + (batch ? "(HH:MM):" : "(DDD, HH:MM)")));
-        add(earliestField);
-        add(new JLabel("Latest End " + (batch ? "(HH:MM):" : "(DDD, HH:MM)")));
-        add(latestField);
+        setLayout(new BorderLayout());
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        formPanel.add(new JLabel("Name:"));
+        formPanel.add(nameField);
+        formPanel.add(new JLabel("Group:"));
+        formPanel.add(groupField);
+        formPanel.add(new JLabel("Duration (min):"));
+        formPanel.add(durationField);
+        formPanel.add(new JLabel("Earliest Start " + (batch ? "(HH:MM):" : "(DDD, HH:MM)")));
+        formPanel.add(earliestField);
+        formPanel.add(new JLabel("Latest End " + (batch ? "(HH:MM):" : "(DDD, HH:MM)")));
+        formPanel.add(latestField);
+
+        add(formPanel, BorderLayout.CENTER);
+
+        if (batch) {
+            checkBoxes = new JCheckBox[]{new JCheckBox("MON"), new JCheckBox("TUE"), new JCheckBox("WED"), new JCheckBox("THU"), new JCheckBox("FRI"), new JCheckBox("SAT"), new JCheckBox("SUN")};
+
+            JPanel checkBoxPanel = new JPanel(new GridLayout(2, 1, 8, 6));
+            checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+            JPanel rowWeekdays = new JPanel();
+            rowWeekdays.add(new JLabel("Weekdays:"));
+            JPanel rowWeekends = new JPanel();
+            rowWeekends.add(new JLabel("Weekends:"));
+
+            for (int i = 0; i < checkBoxes.length; i++) {
+                if (i < 5) {
+                    rowWeekdays.add(checkBoxes[i]);
+                } else {
+                    rowWeekends.add(checkBoxes[i]);
+                }
+            }
+
+            checkBoxPanel.add(rowWeekdays);
+            checkBoxPanel.add(rowWeekends);
+            add(checkBoxPanel);
+        }
     }
 
     public JTextField getNameField() {
@@ -50,5 +80,9 @@ public class TaskFormPanel extends JPanel {
 
     public JTextField getLatestField() {
         return latestField;
+    }
+
+    public JCheckBox[] getCheckBoxes() {
+        return checkBoxes;
     }
 }
