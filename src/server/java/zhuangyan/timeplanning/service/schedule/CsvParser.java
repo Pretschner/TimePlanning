@@ -66,7 +66,7 @@ public class CsvParser {
         return tasks;
     }
 
-    public List<GroupConstraint> readConstraint(Path path) throws IOException {
+    public List<GroupConstraint> readConstraints(Path path) throws IOException {
         long id = 0;
         List<GroupConstraint> constraints = new ArrayList<>();
 
