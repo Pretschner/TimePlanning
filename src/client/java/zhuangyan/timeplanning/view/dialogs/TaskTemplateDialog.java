@@ -4,11 +4,9 @@ import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.model.TimePoint;
 import zhuangyan.timeplanning.model.TimeWindow;
 import zhuangyan.timeplanning.view.MainApplicationUI;
-import zhuangyan.timeplanning.view.dialogs.panels.ButtonPanel;
 import zhuangyan.timeplanning.view.dialogs.panels.TaskFormPanel;
 
 import javax.swing.*;
-import java.awt.*;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -16,98 +14,50 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TaskTemplateDialog {
-    public static void show(MainApplicationUI parent, Consumer<Task> taskConsumer) {
-        JDialog dialog = new JDialog(parent, "Generate Tasks from Template", true);
+public class TaskTemplateDialog extends BaseDialog<Task> {
+    private final DayOfWeek[] days = {
+        DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY
+    };
 
-        JPanel checkBoxPanel = new JPanel(new GridLayout(2, 1, 8, 6));
-        checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+    public TaskTemplateDialog(MainApplicationUI parent, Consumer<Task> taskConsumer) {
+        super(parent, "Generate Tasks from Template", true, new TaskFormPanel(true), taskConsumer);
+    }
 
-        JCheckBox mondayCheck = new JCheckBox("MON");
-        JCheckBox tuesdayCheck = new JCheckBox("TUE");
-        JCheckBox wednesdayCheck = new JCheckBox("WED");
-        JCheckBox thursdayCheck = new JCheckBox("THU");
-        JCheckBox fridayCheck = new JCheckBox("FRI");
-        JCheckBox saturdayCheck = new JCheckBox("SAT");
-        JCheckBox sundayCheck = new JCheckBox("SUN");
+    @Override
+    protected void onExecute() {
+        TaskFormPanel fp = (TaskFormPanel) formPanel;
+        String name = fp.getNameField().getText().trim();
+        String durStr = fp.getDurationField().getText().trim();
 
-        JCheckBox[] checkBoxes = {mondayCheck, tuesdayCheck, wednesdayCheck, thursdayCheck, fridayCheck, saturdayCheck, sundayCheck};
-        DayOfWeek[] days = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY};
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(dialog, "Name is required.");
+            fp.getNameField().requestFocus();
+            return;
+        }
+        if (durStr.isEmpty()) {
+            JOptionPane.showMessageDialog(dialog, "Duration is required.");
+            fp.getDurationField().requestFocus();
+            return;
+        }
 
-        JPanel rowWeekdays = new JPanel();
-        rowWeekdays.add(new JLabel("Weekdays:"));
-        rowWeekdays.add(mondayCheck);
-        rowWeekdays.add(tuesdayCheck);
-        rowWeekdays.add(wednesdayCheck);
-        rowWeekdays.add(thursdayCheck);
-        rowWeekdays.add(fridayCheck);
+        try {
+            int mins = Integer.parseInt(durStr);
+            List<Task> result = new ArrayList<>();
 
-        JPanel rowWeekends = new JPanel();
-        rowWeekends.add(new JLabel("Weekends:"));
-        rowWeekends.add(saturdayCheck);
-        rowWeekends.add(sundayCheck);
-
-        checkBoxPanel.add(rowWeekdays);
-        checkBoxPanel.add(rowWeekends);
-
-        TaskFormPanel formPanel = new TaskFormPanel(true);
-
-        ButtonPanel buttonPanel = new ButtonPanel(true);
-
-        dialog.setLayout(new BorderLayout());
-        dialog.add(checkBoxPanel, BorderLayout.NORTH);
-        dialog.add(formPanel, BorderLayout.CENTER);
-        dialog.add(buttonPanel, BorderLayout.SOUTH);
-        dialog.pack();
-        dialog.setLocationRelativeTo(parent);
-        dialog.getRootPane().setDefaultButton(buttonPanel.getExecute());
-
-        final List<Task> result = new ArrayList<>();
-
-        buttonPanel.getExecute().addActionListener(e -> {
-            String name = formPanel.getNameField().getText().trim();
-            String durStr = formPanel.getDurationField().getText().trim();
-
-            if (name.isEmpty()) {
-                JOptionPane.showMessageDialog(dialog, "Name is required.");
-                formPanel.getNameField().requestFocus();
-                return;
-            }
-            if (durStr.isEmpty()) {
-                JOptionPane.showMessageDialog(dialog, "Duration is required.");
-                formPanel.getDurationField().requestFocus();
-                return;
-            }
-
-            try {
-                int mins = Integer.parseInt(durStr);
-
-                if (mins % parent.getSlotInMinutes() != 0) {
-                    JOptionPane.showMessageDialog(dialog, "Duration must be divisible by the selected slot length.");
-                    formPanel.getDurationField().requestFocus();
-                    return;
+            JCheckBox[] checkBoxes = fp.getCheckBoxes();
+            for (int i = 0; i < 7; i++) {
+                if (checkBoxes[i] != null && checkBoxes[i].isSelected()) {
+                    TimeWindow tw = parseTimeWindow(fp.getEarliestField(), fp.getLatestField(), days[i]);
+                    result.add(new Task(null, name, fp.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
                 }
-
-                for (int i = 0; i < days.length; i++) {
-                    if (checkBoxes[i].isSelected()) {
-                        TimeWindow tw = parseTimeWindow(formPanel.getEarliestField(), formPanel.getLatestField(), days[i]);
-                        result.add(new Task(null, name, formPanel.getGroupField().getText().trim(), Duration.ofMinutes(mins), tw));
-                    }
-                }
-                dialog.dispose();
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Duration must be a number.");
-            } catch (java.time.format.DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(dialog, "Time format: HH:MM (e.g. 09:00)");
             }
-        });
 
-        buttonPanel.getCancel().addActionListener(e -> dialog.dispose());
-
-        dialog.setVisible(true);
-
-        for (var t : result) {
-            taskConsumer.accept(t);
+            closeWithResults(result);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(dialog, "Duration must be a number.");
+        } catch (java.time.format.DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(dialog, "Time format: HH:MM (e.g. 09:00)");
         }
     }
 
@@ -119,8 +69,7 @@ public class TaskTemplateDialog {
             String time = earliestField.getText().trim();
             startTime = LocalTime.parse(time);
             start = new TimePoint(day, startTime);
-        }
-        else {
+        } else {
             startTime = LocalTime.MIN;
             start = new TimePoint(day, startTime);
         }
@@ -128,13 +77,16 @@ public class TaskTemplateDialog {
         if (!latestField.getText().trim().isEmpty()) {
             String time = latestField.getText().trim();
             endTime = LocalTime.parse(time);
-            end = new TimePoint(!endTime.isBefore(startTime) ? day : DayOfWeek.of((day.getValue() + 1) % 7), endTime);
-        }
-        else {
+            end = new TimePoint(!endTime.isBefore(startTime) ? day : DayOfWeek.of((day.getValue() % 7) + 1), endTime);
+        } else {
             endTime = LocalTime.MIN;
-            end = new TimePoint(!endTime.isBefore(startTime) ? day : DayOfWeek.of((day.getValue() + 1) % 7), endTime);
+            end = new TimePoint(!endTime.isBefore(startTime) ? day : DayOfWeek.of((day.getValue() % 7) + 1), endTime);
         }
 
         return new TimeWindow(start, end);
+    }
+
+    public static void show(MainApplicationUI parent, Consumer<Task> taskConsumer) {
+        new TaskTemplateDialog(parent, taskConsumer).show();
     }
 }
