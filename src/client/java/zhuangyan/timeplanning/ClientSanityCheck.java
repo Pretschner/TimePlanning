@@ -68,9 +68,9 @@ public class ClientSanityCheck {
             // Add Tasks
             try {
                 System.out.println("\n--- Testing Add Task (1) ---");
-                taskController.addTask(task1, taskConsumer);
+                taskController.add(task1, taskConsumer);
                 System.out.println("--- Testing Add Task (2) ---");
-                taskController.addTask(task2, taskConsumer);
+                taskController.add(task2, taskConsumer);
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -79,7 +79,7 @@ public class ClientSanityCheck {
             // Get All Tasks
             try {
                 System.out.println("\n--- Testing Get All Tasks ---");
-                taskController.getAllTasks(taskConsumer);
+                taskController.getAll(taskConsumer);
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -88,12 +88,12 @@ public class ClientSanityCheck {
             // Edit Task
             try {
                 System.out.println("\n--- Testing Edit Task ---");
-                taskController.getAllTasks(tasks -> {
+                taskController.getAll(tasks -> {
                     if (!tasks.isEmpty()) {
                         Task first = tasks.get(0);
                         Task edited = new Task(first.id(), "updatedTask", "group1",
                                 Duration.ofHours(2), new TimeWindow(t1, t2));
-                        taskController.editTask(edited, taskConsumer);
+                        taskController.edit(edited, taskConsumer);
                         System.out.println("Task edited successfully");
                     } else {
                         System.out.println("No tasks to edit");
@@ -107,10 +107,10 @@ public class ClientSanityCheck {
             // Delete Task
             try {
                 System.out.println("\n--- Testing Delete Task ---");
-                taskController.getAllTasks(tasks -> {
+                taskController.getAll(tasks -> {
                     if (!tasks.isEmpty()) {
                         Task toDelete = tasks.get(0);
-                        taskController.deleteTask(toDelete, taskConsumer);
+                        taskController.delete(toDelete, taskConsumer);
                         System.out.println("Task deleted successfully");
                     } else {
                         System.out.println("No tasks to delete");
@@ -131,7 +131,7 @@ public class ClientSanityCheck {
             // Add GroupConstraint
             try {
                 System.out.println("\n--- Testing Add GroupConstraint ---");
-                constraintController.addGroupConstraint(constraint, constraintConsumer);
+                constraintController.add(constraint, constraintConsumer);
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -140,7 +140,7 @@ public class ClientSanityCheck {
             // Get All Constraints
             try {
                 System.out.println("\n--- Testing Get All Constraints ---");
-                constraintController.getAllConstraints(constraintConsumer);
+                constraintController.getAll(constraintConsumer);
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -149,12 +149,12 @@ public class ClientSanityCheck {
             // Edit GroupConstraint
             try {
                 System.out.println("\n--- Testing Edit GroupConstraint ---");
-                constraintController.getAllConstraints(constraints -> {
+                constraintController.getAll(constraints -> {
                     if (!constraints.isEmpty()) {
                         GroupConstraint first = constraints.get(0);
                         GroupConstraint edited = new GroupConstraint(first.id(), "group1", "group2",
                                 Duration.ofHours(2), Duration.ofHours(30));
-                        constraintController.editGroupConstraint(edited, cons -> {
+                        constraintController.edit(edited, cons -> {
                             System.out.println("Constraint edited successfully");
                             cons.forEach(c -> System.out.println("  - Constraint: " + c));
                         });
@@ -170,10 +170,10 @@ public class ClientSanityCheck {
             // Delete GroupConstraint
             try {
                 System.out.println("\n--- Testing Delete GroupConstraint ---");
-                constraintController.getAllConstraints(constraints -> {
+                constraintController.getAll(constraints -> {
                     if (!constraints.isEmpty()) {
                         GroupConstraint toDelete = constraints.get(0);
-                        constraintController.deleteGroupConstraint(toDelete, cons -> {
+                        constraintController.delete(toDelete, cons -> {
                             System.out.println("Constraint deleted successfully");
                             cons.forEach(c -> System.out.println("  - Constraint: " + c));
                         });
