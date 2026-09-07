@@ -3,10 +3,11 @@ package zhuangyan.timeplanning.service.schedule.strategies;
 import zhuangyan.timeplanning.model.Strategy;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
+import zhuangyan.timeplanning.time.TimeConverter;
 
 import java.util.*;
 
-public class CombinedStrategy implements ScoringStrategy {
+public class CombinedStrategy extends ScoringStrategy {
     /**
      * A Strategy based on the weighted sum of different strategies.
      */
@@ -14,44 +15,34 @@ public class CombinedStrategy implements ScoringStrategy {
     private final Map<Strategy, Integer> weights;
 
     public CombinedStrategy(List<ScoringStrategy> strategies) {
+        super(new TimeConverter(30)); // dummy, not used
         this.strategies = new ArrayList<>();
         weights = new HashMap<>();
 
         for (var strategy : strategies) {
-            Strategy enumValue = toEnumValue(strategy);
+            Strategy enumValue = strategy.getType();
             if (!weights.containsKey(enumValue)) {
                 weights.put(enumValue, 1);
                 this.strategies.add(strategy);
-            }
-            else {
+            } else {
                 weights.compute(enumValue, (k, currentWeight) -> currentWeight + 1);
             }
         }
     }
 
-    private Strategy toEnumValue(ScoringStrategy strategy) {
-        if (strategy instanceof EarlyFinish) {
-            return Strategy.Early_Finish;
-        }
-        else if (strategy instanceof FlowState) {
-            return Strategy.Flow_State;
-        }
-        else if (strategy instanceof GroupedLeisure) {
-            return Strategy.Grouped_Leisure;
-        }
-        else { // strategy instanceof MemorizableSchedule
-            return Strategy.Memorizable_Schedule;
-        }
+    @Override
+    public Strategy getType() {
+        return null; // CombinedStrategy has no single type
     }
 
     @Override
     public double score(List<Integer> startSlots, List<Task> tasks) {
         double totalScore = strategies.stream()
-                .mapToDouble(s -> s.score(startSlots, tasks) * weights.get(toEnumValue(s)))
+                .mapToDouble(s -> s.score(startSlots, tasks) * weights.get(s.getType()))
                 .sum();
         int numberOfStrategies = weights.values()
                 .stream()
-                .mapToInt(integer -> integer)
+                .mapToInt(Integer::intValue)
                 .sum();
         return totalScore / numberOfStrategies;
     }

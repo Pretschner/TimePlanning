@@ -1,34 +1,35 @@
 package zhuangyan.timeplanning.service.schedule.strategies;
 
+import zhuangyan.timeplanning.model.Strategy;
 import zhuangyan.timeplanning.model.Task;
-import zhuangyan.timeplanning.service.schedule.EngineConfig;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
 import zhuangyan.timeplanning.time.TimeConverter;
 
 import java.util.List;
 
-public class GroupedLeisure implements ScoringStrategy {
+public class GroupedLeisure extends ScoringStrategy {
     /**
      * A Strategy that rewards grouped free time, avoiding scattered blocks of leisure.
      * It counts the number of boundaries between allocated and unallocated timeslots,
      * rewarding the minimum.
      */
-    private final TimeConverter converter;
 
     public GroupedLeisure(TimeConverter converter) {
-        this.converter = converter;
+        super(converter);
     }
-    public GroupedLeisure(EngineConfig config) {
-        this.converter = new TimeConverter(config.slotInMinutes());
+
+    @Override
+    public Strategy getType() {
+        return Strategy.Grouped_Leisure;
     }
 
     @Override
     public double score(List<Integer> startSlots, List<Task> tasks) {
-        String[] allocatedArray = allocationArray(startSlots, tasks, converter);
+        String[] allocatedArray = allocationArray(startSlots, tasks);
         double counter = 0.0;
         for (int i = 0; i < allocatedArray.length - 1; i++) {
             String t_1 = allocatedArray[i];
-            String t_2 = allocatedArray[i+1];
+            String t_2 = allocatedArray[i + 1];
             if (t_1 == null || t_2 == null) {
                 continue;
             }

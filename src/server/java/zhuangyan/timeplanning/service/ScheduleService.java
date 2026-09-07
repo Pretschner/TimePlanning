@@ -61,7 +61,7 @@ public class ScheduleService {
         return scheduleRepository.findByUserId(userId);
     }
 
-    private ScoringStrategy initializeStrategy(Strategy strategy, TimeConverter converter){
+    private ScoringStrategy initializeStrategy(Strategy strategy, TimeConverter converter) {
         return switch (strategy) {
             case Early_Finish -> new EarlyFinish(converter);
             case Flow_State -> new FlowState(converter);

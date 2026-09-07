@@ -1,7 +1,7 @@
 package zhuangyan.timeplanning.service.schedule.strategies;
 
+import zhuangyan.timeplanning.model.Strategy;
 import zhuangyan.timeplanning.model.Task;
-import zhuangyan.timeplanning.service.schedule.EngineConfig;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
 import zhuangyan.timeplanning.time.TimeConverter;
 
@@ -10,19 +10,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MemorizableSchedule implements ScoringStrategy {
+public class MemorizableSchedule extends ScoringStrategy {
     /**
      * A Scheduling Strategy that rewards a recurring schedule,
      * that is the number of times a task with the same group has an identical start slot.
      */
 
-    private final TimeConverter converter;
-
     public MemorizableSchedule(TimeConverter converter) {
-        this.converter = converter;
+        super(converter);
     }
-    public MemorizableSchedule(EngineConfig config) {
-        this.converter = new TimeConverter(config.slotInMinutes());
+
+    @Override
+    public Strategy getType() {
+        return Strategy.Memorizable_Schedule;
     }
 
     @Override
