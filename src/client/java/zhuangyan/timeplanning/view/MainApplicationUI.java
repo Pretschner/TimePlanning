@@ -41,16 +41,8 @@ public class MainApplicationUI extends JFrame {
     private JButton prevScheduleButton;
     private JButton nextScheduleButton;
 
-    // Bottom buttons
-    private JButton generateBtn;
-    private JButton addBtn;
-    private JButton editBtn;
-    private JButton deleteBtn;
-    private JButton templateButton;
-
-    // Selected Tasks/Constraints
-    private Task selectedTask = null;
-    private GroupConstraint selectedConstraint = null;
+    // Detail Panel
+    private DetailPanel detailPanel;
 
     // Default Config for Schedule Generation / Rendering
     private int slotInMinutes = 15;
@@ -66,7 +58,7 @@ public class MainApplicationUI extends JFrame {
     private void initUI() {
         setTitle("Time Planning – Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1100, 700);
+        setSize(1480, 700);
         setLocationRelativeTo(null);
 
         // Top Panel (Name, Help, Logout)
@@ -86,6 +78,9 @@ public class MainApplicationUI extends JFrame {
         topRightPanel.add(logoutBtn);
         topPanel.add(topRightPanel, BorderLayout.EAST);
 
+        // Detail Panel (East)
+        detailPanel = new DetailPanel(this, controllerCaller);
+
         // Center (Tabs)
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Tasks", createTaskPanel());
@@ -96,43 +91,37 @@ public class MainApplicationUI extends JFrame {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
 
-        generateBtn = new JButton("⚡ Generate Schedule");
+        // Bottom buttons
+        JButton generateBtn = new JButton("⚡ Generate Schedule");
         generateBtn.setPreferredSize(new Dimension(160, 32));
         generateBtn.addActionListener(e -> {
             ScheduleDialog.show(this, slotInMinutes, controllerCaller::generateSchedule);
         });
 
-        addBtn = new JButton("Add");
+        JButton addBtn = new JButton("Add");
         addBtn.addActionListener(e -> handleAdd());
 
-        editBtn = new JButton("Edit");
-        editBtn.setEnabled(false);
-        editBtn.addActionListener(e -> handleEdit());
-
-        deleteBtn = new JButton("Delete");
-        deleteBtn.setEnabled(false);
-        deleteBtn.addActionListener(e -> handleDelete());
-
-        templateButton = new JButton("Templates");
-        templateButton.addActionListener(e -> handleTemplate());
+        JButton templateBtn = new JButton("Templates");
+        templateBtn.addActionListener(e -> handleTemplate());
 
         JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
         sep.setPreferredSize(new Dimension(1, 28));
 
         bottomPanel.add(generateBtn);
-        bottomPanel.add(sep);
         bottomPanel.add(addBtn);
-        bottomPanel.add(editBtn);
-        bottomPanel.add(deleteBtn);
-        bottomPanel.add(templateButton);
+        bottomPanel.add(templateBtn);
 
         // Assemble
         setLayout(new BorderLayout());
         add(topPanel, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
+        add(detailPanel, BorderLayout.EAST);
 
-        tabbedPane.addChangeListener(e -> updateButtonStateForCurrentTab());
+        tabbedPane.addChangeListener(e -> {
+            detailPanel.showWelcome();
+        });
+        detailPanel.showWelcome();
     }
 
     // TAB PANELS
@@ -149,8 +138,8 @@ public class MainApplicationUI extends JFrame {
 
         taskList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                selectedTask = taskList.getSelectedValue();
-                updateButtonStateForCurrentTab();
+                Task selectedTask = taskList.getSelectedValue();
+                if (selectedTask != null) detailPanel.showTask(selectedTask);
             }
         });
 
@@ -170,8 +159,8 @@ public class MainApplicationUI extends JFrame {
 
         constraintList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                selectedConstraint = constraintList.getSelectedValue();
-                updateButtonStateForCurrentTab();
+                GroupConstraint selectedConstraint = constraintList.getSelectedValue();
+                if (selectedConstraint != null) detailPanel.showConstraint(selectedConstraint);
             }
         });
 
@@ -186,6 +175,32 @@ public class MainApplicationUI extends JFrame {
         timetableTable = new JTable(new DefaultTableModel(0, 0));
         timetableTable.setRowHeight(25);
         timetableTable.setDefaultRenderer(Object.class, new TimetableRenderer());
+
+        // Single Cell Selection
+        timetableTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        timetableTable.setCellSelectionEnabled(true);
+
+        Runnable selectionUpdater = () -> {
+            SwingUtilities.invokeLater(() -> {
+                int row = timetableTable.getSelectedRow();
+                int col = timetableTable.getSelectedColumn();
+                if (row >= 0 && col > 0) {
+                    Object value = timetableModel.getValueAt(row, col);
+                    if (value instanceof TaskSlot slot) {
+                        detailPanel.showPlacement(slot.placement());
+                    }
+                }
+            });
+        };
+
+        timetableTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) selectionUpdater.run();
+        });
+
+        timetableTable.getColumnModel().getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) selectionUpdater.run();
+        });
+
 
         JScrollPane scrollPane = new JScrollPane(timetableTable);
 
@@ -257,28 +272,6 @@ public class MainApplicationUI extends JFrame {
         timetableTable.repaint();
     }
 
-
-    // BUTTON STATE
-
-    private void updateButtonStateForCurrentTab() {
-        int idx = tabbedPane.getSelectedIndex();
-        if (idx == 0) { // Tasks
-            boolean hasSelection = selectedTask != null;
-            editBtn.setEnabled(hasSelection);
-            deleteBtn.setEnabled(hasSelection);
-            addBtn.setEnabled(true);
-        } else if (idx == 1) { // Constraints
-            boolean hasSelection = selectedConstraint != null;
-            editBtn.setEnabled(hasSelection);
-            deleteBtn.setEnabled(hasSelection);
-            addBtn.setEnabled(true);
-        } else { // Timetable
-            editBtn.setEnabled(false);
-            deleteBtn.setEnabled(false);
-            addBtn.setEnabled(false);
-        }
-    }
-
     //  BOTTOM BUTTON LISTENERS
 
     private void handleAdd() {
@@ -287,19 +280,6 @@ public class MainApplicationUI extends JFrame {
         else ConstraintDialog.show(this, null, controllerCaller::callAddConstraint); // idx == 1
     }
 
-    private void handleEdit() {
-        int idx = tabbedPane.getSelectedIndex();
-        if (idx == 0 && selectedTask != null) TaskDialog.show(this, selectedTask, controllerCaller::callUpdateTask);
-        else if (idx == 1 && selectedConstraint != null) ConstraintDialog.show(this, selectedConstraint, controllerCaller::callUpdateConstraint);
-        else JOptionPane.showMessageDialog(this, "Please select an item to edit.");
-    }
-
-    private void handleDelete() {
-        int idx = tabbedPane.getSelectedIndex();
-        if (idx == 0 && selectedTask != null) controllerCaller.deleteTask(selectedTask);
-        else if (idx == 1 && selectedConstraint != null) controllerCaller.deleteConstraint(selectedConstraint);
-        else JOptionPane.showMessageDialog(this, "Please select an item to delete.");
-    }
 
     private void handleTemplate() {
         int idx = tabbedPane.getSelectedIndex();
@@ -316,8 +296,6 @@ public class MainApplicationUI extends JFrame {
                 taskListModel.addElement(t);
             }
             taskList.clearSelection();
-            selectedTask = null;
-            updateButtonStateForCurrentTab();
         });
     }
 
@@ -328,8 +306,6 @@ public class MainApplicationUI extends JFrame {
                 constraintListModel.addElement(c);
             }
             constraintList.clearSelection();
-            selectedConstraint = null;
-            updateButtonStateForCurrentTab();
         });
     }
 
@@ -441,7 +417,7 @@ public class MainApplicationUI extends JFrame {
 
                             // col = dayIndex + 1 (0 = Time Label Axis)
                             timetableModel.setValueAt(
-                                    new TaskSlot(task, type, displayStartTime, displayEndTime),
+                                    new TaskSlot(placement, type),
                                     row, dayIndex + 1
                             );
                             visibleRowCounter++;
@@ -506,5 +482,12 @@ public class MainApplicationUI extends JFrame {
 
     public int getSlotInMinutes() {
         return slotInMinutes;
+    }
+
+    public void clearDetailSelection() {
+        taskList.clearSelection();
+        constraintList.clearSelection();
+        timetableTable.clearSelection();
+        detailPanel.showWelcome();
     }
 }
