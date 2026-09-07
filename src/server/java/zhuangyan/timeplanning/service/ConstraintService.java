@@ -5,29 +5,29 @@ import org.springframework.stereotype.Service;
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.exception.ForbiddenException;
 import zhuangyan.timeplanning.exception.NotFoundException;
-import zhuangyan.timeplanning.repository.ConstraintRepository;
+import zhuangyan.timeplanning.repository.BaseRepository;
 
 import java.util.List;
 
 @Service
 public class ConstraintService {
 
-    private final ConstraintRepository constraintRepository;
+    private final BaseRepository<GroupConstraint> constraintRepository;
 
     @Autowired
-    public ConstraintService(ConstraintRepository constraintRepository) {
+    public ConstraintService(BaseRepository<GroupConstraint> constraintRepository) {
         this.constraintRepository = constraintRepository;
     }
 
     public GroupConstraint createGroupConstraint(GroupConstraint constraint, long userId) {
         GroupConstraint newGroupConstraint = new GroupConstraint(constraintRepository.getNextId(), constraint.sourceGroup(), constraint.targetGroup(), constraint.minimumGap(), constraint.maximumGap());
-        return constraintRepository.save(newGroupConstraint, userId);
+        return constraintRepository.save(newGroupConstraint, userId, GroupConstraint::id);
     }
 
     public GroupConstraint updateGroupConstraint(GroupConstraint constraint, long id, long userId) {
         validateOwnership(id, userId);
         GroupConstraint updatedGroupConstraint = new GroupConstraint(id, constraint.sourceGroup(), constraint.targetGroup(), constraint.minimumGap(), constraint.maximumGap());
-        return constraintRepository.save(updatedGroupConstraint, userId);
+        return constraintRepository.save(updatedGroupConstraint, userId, GroupConstraint::id);
     }
 
     public GroupConstraint deleteGroupConstraint(long id, long userId) {
