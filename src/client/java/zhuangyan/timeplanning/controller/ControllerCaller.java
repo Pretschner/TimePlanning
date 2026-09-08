@@ -45,7 +45,7 @@ public class ControllerCaller {
     }
 
     public void generateSchedule(ScheduleConfig config) {
-        async("Schedule generation failed", () -> scheduleController.getAllSchedules(mainUI::updateTimetable));
+        async("Schedule generation failed", () -> scheduleController.addSchedule(config, mainUI::updateTimetable));
     }
 
     // DATA SYNC ON STARTUP
