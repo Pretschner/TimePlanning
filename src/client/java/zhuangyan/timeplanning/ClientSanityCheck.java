@@ -1,5 +1,6 @@
 package zhuangyan.timeplanning;
 
+import org.springframework.core.ParameterizedTypeReference;
 import zhuangyan.timeplanning.controller.*;
 import zhuangyan.timeplanning.model.*;
 
@@ -80,7 +81,7 @@ public class ClientSanityCheck {
             // Get All Tasks
             try {
                 System.out.println("\n--- Testing Get All Tasks ---");
-                taskController.getAll(taskConsumer);
+                taskController.getAll(taskConsumer, new ParameterizedTypeReference<List<Task>>() {});
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -90,16 +91,17 @@ public class ClientSanityCheck {
             try {
                 System.out.println("\n--- Testing Edit Task ---");
                 taskController.getAll(tasks -> {
-                    if (!tasks.isEmpty()) {
-                        Task first = tasks.get(0);
-                        Task edited = new Task(first.id(), "updatedTask", "group1",
-                                Duration.ofHours(2), new TimeWindow(t1, t2));
-                        taskController.edit(edited, taskConsumer);
-                        System.out.println("Task edited successfully");
-                    } else {
-                        System.out.println("No tasks to edit");
-                    }
-                });
+                            if (!tasks.isEmpty()) {
+                                Task first = tasks.get(0);
+                                Task edited = new Task(first.id(), "updatedTask", "group1",
+                                        Duration.ofHours(2), new TimeWindow(t1, t2));
+                                taskController.edit(edited, taskConsumer);
+                                System.out.println("Task edited successfully");
+                            } else {
+                                System.out.println("No tasks to edit");
+                            }
+                        },
+                        new ParameterizedTypeReference<List<Task>>() {});
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -109,14 +111,15 @@ public class ClientSanityCheck {
             try {
                 System.out.println("\n--- Testing Delete Task ---");
                 taskController.getAll(tasks -> {
-                    if (!tasks.isEmpty()) {
-                        Task toDelete = tasks.get(0);
-                        taskController.delete(toDelete, taskConsumer);
-                        System.out.println("Task deleted successfully");
-                    } else {
-                        System.out.println("No tasks to delete");
-                    }
-                });
+                            if (!tasks.isEmpty()) {
+                                Task toDelete = tasks.get(0);
+                                taskController.delete(toDelete, taskConsumer);
+                                System.out.println("Task deleted successfully");
+                            } else {
+                                System.out.println("No tasks to delete");
+                            }
+                        },
+                        new ParameterizedTypeReference<List<Task>>() {});
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -141,7 +144,7 @@ public class ClientSanityCheck {
             // Get All Constraints
             try {
                 System.out.println("\n--- Testing Get All Constraints ---");
-                constraintController.getAll(constraintConsumer);
+                constraintController.getAll(constraintConsumer, new ParameterizedTypeReference<List<GroupConstraint>>() {});
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -162,7 +165,8 @@ public class ClientSanityCheck {
                     } else {
                         System.out.println("No constraints to edit");
                     }
-                });
+                },
+                        new ParameterizedTypeReference<List<GroupConstraint>>(){});
             } catch (Exception e) {
                 errorHandler.accept(e);
             }
@@ -172,16 +176,17 @@ public class ClientSanityCheck {
             try {
                 System.out.println("\n--- Testing Delete GroupConstraint ---");
                 constraintController.getAll(constraints -> {
-                    if (!constraints.isEmpty()) {
-                        GroupConstraint toDelete = constraints.get(0);
-                        constraintController.delete(toDelete, cons -> {
-                            System.out.println("Constraint deleted successfully");
-                            cons.forEach(c -> System.out.println("  - Constraint: " + c));
-                        });
-                    } else {
-                        System.out.println("No constraints to delete");
-                    }
-                });
+                            if (!constraints.isEmpty()) {
+                                GroupConstraint toDelete = constraints.get(0);
+                                constraintController.delete(toDelete, cons -> {
+                                    System.out.println("Constraint deleted successfully");
+                                    cons.forEach(c -> System.out.println("  - Constraint: " + c));
+                                });
+                            } else {
+                                System.out.println("No constraints to delete");
+                            }
+                        },
+                        new ParameterizedTypeReference<List<GroupConstraint>>() {});
             } catch (Exception e) {
                 errorHandler.accept(e);
             }

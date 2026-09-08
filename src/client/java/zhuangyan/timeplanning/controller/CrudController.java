@@ -75,12 +75,12 @@ public abstract class CrudController<T> {
         consumer.accept(snapshot());
     }
 
-    public void getAll(Consumer<List<T>> consumer) {
+    public void getAll(Consumer<List<T>> consumer, ParameterizedTypeReference<List<T>> parameterizedTypeReference) {
         List<T> received = restClient.get()
                 .uri(endpoint)
                 .header(HttpHeaders.AUTHORIZATION, TokenStore.getHeader())
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<T>>() {})
+                .toEntity(parameterizedTypeReference)
                 .getBody();
 
         synchronized (this) {

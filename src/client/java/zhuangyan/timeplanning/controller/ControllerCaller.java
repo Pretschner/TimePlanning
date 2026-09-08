@@ -1,12 +1,13 @@
 package zhuangyan.timeplanning.controller;
 
+import org.springframework.core.ParameterizedTypeReference;
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.view.MainApplicationUI;
 
 import javax.swing.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.List;
 
 /** Bridges UI to controllers: runs network calls in SwingWorker (w. errors/confirmations), and routes callbacks back to the UI. */
 public class ControllerCaller {
@@ -51,8 +52,8 @@ public class ControllerCaller {
 
     public void syncAllDataFromServer() {
         async("Data synchronization failed", () -> {
-            taskController.getAll(mainUI::updateTaskTable);
-            constraintController.getAll(mainUI::updateConstraintTable);
+            taskController.getAll(mainUI::updateTaskTable, new ParameterizedTypeReference<List<Task>>() {});
+            constraintController.getAll(mainUI::updateConstraintTable, new ParameterizedTypeReference<List<GroupConstraint>>() {});
             scheduleController.getAllSchedules(mainUI::updateTimetable);
         });
     }
