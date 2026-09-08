@@ -1,12 +1,10 @@
 package zhuangyan.timeplanning.view.renderers;
 
-import zhuangyan.timeplanning.model.Task;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
-/** Table cell renderer: paints {@code TaskSlot} cells with task name/time and group color; grays the time-label column. */
+/** Table cell renderer: paints {@code TimetableCell} cells with task name/time and group color; grays the time-label column. */
 public class TimetableRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
@@ -16,18 +14,13 @@ public class TimetableRenderer extends DefaultTableCellRenderer {
             setHorizontalAlignment(SwingConstants.CENTER);
             return c;
         }
-        if (value instanceof TaskSlot t) {
-            if (t.type() == SlotType.NAME_DISPLAY) {
-                setText(t.task().name());
+        if (value instanceof TimetableCell cell) {
+            switch (cell.type()) {
+                case NAME_DISPLAY -> setText(cell.task().name());
+                case TIME_DISPLAY -> setText(cell.start() + " -> " + cell.end());
+                case BACKGROUND -> setText("");
             }
-            else if (t.type() == SlotType.TIME_DISPLAY) {
-                setText(t.taskStart().toString() + " -> " + t.taskEnd().toString());
-            }
-            else {
-                setText("");
-            }
-            setBackground(ColorSelector.colorForGroup(t.task().group()));
-            setToolTipText(t.task().name() + "\n" + t.task().group() + "\n" + t.taskStart().toString() + " -> " + t.taskEnd().toString());
+            setBackground(ColorSelector.colorForGroup(cell.task().group()));
             setHorizontalAlignment(SwingConstants.CENTER);
         } else {
             setBackground(Color.WHITE);

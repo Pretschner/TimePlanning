@@ -36,7 +36,7 @@ public class CombinedStrategy extends ScoringStrategy {
     }
 
     @Override
-    public double score(List<Integer> startSlots, List<Task> tasks) {
+    public double score(int[] startSlots, List<Task> tasks) {
         double totalScore = strategies.stream()
                 .mapToDouble(s -> s.score(startSlots, tasks) * weights.get(s.getType()))
                 .sum();

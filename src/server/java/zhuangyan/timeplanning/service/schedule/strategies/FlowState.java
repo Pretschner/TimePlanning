@@ -24,7 +24,7 @@ public class FlowState extends ScoringStrategy {
     }
 
     @Override
-    public double score(List<Integer> startSlots, List<Task> tasks) {
+    public double score(int[] startSlots, List<Task> tasks) {
         String[] allocatedArray = allocationArray(startSlots, tasks);
         double counter = 0.0;
         for (int i = 0; i < allocatedArray.length - 1; i++) {

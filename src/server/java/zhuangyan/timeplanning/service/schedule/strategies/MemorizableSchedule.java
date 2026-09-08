@@ -26,7 +26,7 @@ public class MemorizableSchedule extends ScoringStrategy {
     }
 
     @Override
-    public double score(List<Integer> startSlots, List<Task> tasks) {
+    public double score(int[] startSlots, List<Task> tasks) {
         Map<String, List<Integer>> buckets = new HashMap<>();
         double score = 0.0;
 
@@ -42,8 +42,8 @@ public class MemorizableSchedule extends ScoringStrategy {
                     int firstIndex = indices.get(i);
                     int secondIndex = indices.get(j);
 
-                    int firstSlot = startSlots.get(firstIndex);
-                    int secondSlot = startSlots.get(secondIndex);
+                    int firstSlot = startSlots[firstIndex];
+                    int secondSlot = startSlots[secondIndex];
 
                     if (isIdentical(firstSlot, secondSlot)) {
                         score++;

@@ -2,9 +2,9 @@ package zhuangyan.timeplanning.view;
 
 import zhuangyan.timeplanning.controller.*;
 import zhuangyan.timeplanning.model.*;
-import zhuangyan.timeplanning.time.TimetableGrid;
 import zhuangyan.timeplanning.view.dialogs.*;
 import zhuangyan.timeplanning.view.renderers.*;
+import zhuangyan.timeplanning.view.renderers.TimetableCell.SlotType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -16,9 +16,9 @@ import java.util.List;
 /** The main dashboard: three tabs (Tasks, Constraints, Timetable) with add/edit/delete, template generation, and schedule navigation. */
 public class MainApplicationUI extends JFrame {
     // Controller Access
-    private final ControllerCaller controllerCaller = new ControllerCaller(this);
+    private final ControllerCaller controllerCaller;
 
-    // UI Components
+    // Tabbed Pane
     private JTabbedPane tabbedPane;
 
     // Tasks
@@ -52,6 +52,7 @@ public class MainApplicationUI extends JFrame {
 
     public MainApplicationUI() {
         initUI();
+        this.controllerCaller = new ControllerCaller(this);
         controllerCaller.syncAllDataFromServer();
     }
 
@@ -186,8 +187,8 @@ public class MainApplicationUI extends JFrame {
                 int col = timetableTable.getSelectedColumn();
                 if (row >= 0 && col > 0) {
                     Object value = timetableModel.getValueAt(row, col);
-                    if (value instanceof TaskSlot slot) {
-                        detailPanel.showPlacement(slot.placement());
+                    if (value instanceof TimetableCell slot) {
+                        detailPanel.showPlacement(slot.scheduledTask());
                     }
                 }
             });
@@ -280,7 +281,6 @@ public class MainApplicationUI extends JFrame {
         else ConstraintDialog.show(this, null, controllerCaller::callAddConstraint); // idx == 1
     }
 
-
     private void handleTemplate() {
         int idx = tabbedPane.getSelectedIndex();
         if (idx == 0) TaskTemplateDialog.show(this, controllerCaller::callAddTask);
@@ -336,8 +336,11 @@ public class MainApplicationUI extends JFrame {
     }
 
     private static final long MINUTES_PER_DAY = 1440L;
-    private static final long MINUTES_PER_WEEK = 7 * MINUTES_PER_DAY;
 
+    /**
+     * Method that fills the DefaultTableModel with TimetableCell objects for rendering.
+     * @param index the index in schedulesList at which the desired Schedule is located.
+     * */
     private void displaySchedule(int index) {
         clearTimetable();
 
@@ -347,85 +350,67 @@ public class MainApplicationUI extends JFrame {
             return;
         }
         Schedule schedule = schedulesList.get(index);
-        if (schedule == null || schedule.taskPlacements() == null) {
+        if (schedule == null || schedule.scheduledTasks() == null || schedule.scheduledTasks().isEmpty()) {
             updateNavigationButtons();
             return;
         }
 
-        // Table Boundaries (e.g., 8:00 AM and 10:00 PM)
+        // Table Boundaries in Minutes (e.g. 08:00 -> 480)
         long lbMinutes = lowerBound.toSecondOfDay() / 60;
-        long ubMinutes = upperBound.toSecondOfDay() / 60;
+        long ubMinutes = (upperBound.toSecondOfDay() / 60) + slotInMinutes;
 
-        for (TaskPlacement placement : schedule.taskPlacements()) {
-            Task task = placement.task();
-            TimePoint startPoint = placement.start();
-            long taskDurationMinutes = task.duration().toMinutes();
+        // Iterate over Tasks to find their respective TimetableCell objects
+        for (ScheduledTask scheduledTask : schedule.scheduledTasks()) {
 
-            // Convert absolute start to minutes since Monday 00:00
-            long dayOffsetMinutes = (startPoint.day().getValue() - 1) * MINUTES_PER_DAY;
-            long timeOffsetMinutes = startPoint.time().toSecondOfDay() / 60;
-            long absoluteStartWeekMinutes = dayOffsetMinutes + timeOffsetMinutes;
-
-            // Normalize to handle tasks that wrap across Sunday midnight
-            long taskStartWeekMinutes = absoluteStartWeekMinutes % MINUTES_PER_WEEK;
-            if (taskStartWeekMinutes < 0) taskStartWeekMinutes += MINUTES_PER_WEEK;
-            long taskEndWeekMinutes = taskStartWeekMinutes + taskDurationMinutes;
-
-            // Unwrapped times used purely for the display text (e.g., "09:00 - 12:00")
-            LocalTime displayStartTime = placement.start().time();
-            LocalTime displayEndTime = displayStartTime.plus(task.duration());
+            // Convert Start TimePoint to minutes since Monday 00:00
+            long taskStart = getMinutesSinceWeekStart(scheduledTask.start());
+            long durationMinutes = scheduledTask.task().duration().toMinutes();
+            // Implicit Wraparound Handling
+            long taskEnd = taskStart + durationMinutes;
 
             // Tracks visible rows to assign NAME (0) and TIME (1)
             int visibleRowCounter = 0;
 
             // Iterate every day that this task touches
-            long currentDayStartMinutes = (taskStartWeekMinutes / MINUTES_PER_DAY) * MINUTES_PER_DAY;
-            while (currentDayStartMinutes < taskEndWeekMinutes) {
-                long nextDayStartMinutes = currentDayStartMinutes + MINUTES_PER_DAY;
+            long currentDayStart = (taskStart / MINUTES_PER_DAY) * MINUTES_PER_DAY;
+            while (currentDayStart < taskEnd) {
+                long nextDayStart = currentDayStart + MINUTES_PER_DAY;
 
-                // Clip task segment to the current 24-hour day
-                long taskStartThisDay = Math.max(taskStartWeekMinutes, currentDayStartMinutes);
-                long taskEndThisDay = Math.min(taskEndWeekMinutes, nextDayStartMinutes);
+                // Clip Task to current Day
+                long taskStartThisDay = Math.max(taskStart, currentDayStart);
+                long taskEndThisDay = Math.min(taskEnd, nextDayStart);
 
-                // Clip the visible grid window to the current day
-                long gridStartThisDay = currentDayStartMinutes + lbMinutes;
-                long gridEndThisDay = currentDayStartMinutes + ubMinutes;
+                // Clip Day to Visible Grid
+                long gridStartThisDay = currentDayStart + lbMinutes;
+                long gridEndThisDay = currentDayStart + ubMinutes;
 
-                // Intersect the task segment with the visible grid window
+                // => Clip Task to Visible Grid
                 long visibleStartThisDay = Math.max(taskStartThisDay, gridStartThisDay);
                 long visibleEndThisDay = Math.min(taskEndThisDay, gridEndThisDay);
 
                 // If there is any visible overlap on this day
                 if (visibleStartThisDay < visibleEndThisDay) {
-                    int dayIndex = (int) ((currentDayStartMinutes / MINUTES_PER_DAY) % 7); // 0=Mon ... 6=Sun
-
-                    // Convert clipped minutes back to LocalTime for row lookups
-                    LocalTime rowStartTime = minutesToLocalTime((int) (visibleStartThisDay % MINUTES_PER_DAY));
-                    LocalTime rowEndTime = minutesToLocalTime((int) (visibleEndThisDay % MINUTES_PER_DAY));
-
+                    int startRow = timetableGrid.rowIndexOf(visibleStartThisDay % MINUTES_PER_DAY);
                     // Subtract 1 minute so that an end time of 12:00 doesn't color the 12:00 row
-                    int startRow = timetableGrid.rowIndexOf(rowStartTime);
-                    int endRow = timetableGrid.rowIndexOf(rowEndTime.minusMinutes(1));
+                    int endRow = timetableGrid.rowIndexOf((visibleEndThisDay - 1) % MINUTES_PER_DAY);
 
                     if (startRow >= 0 && endRow >= 0) {
+                        // Wrap-Around Handling (%7), then increment by 1 (since col 0 is occupied): 1=Mon ... 7=Sun
+                        int dayIndex = (int) ((currentDayStart / MINUTES_PER_DAY) % 7) + 1;
                         for (int row = startRow; row <= endRow; row++) {
                             SlotType type = switch (visibleRowCounter) {
                                 case 0 -> SlotType.NAME_DISPLAY;
                                 case 1 -> SlotType.TIME_DISPLAY;
                                 default -> SlotType.BACKGROUND;
                             };
-
-                            // col = dayIndex + 1 (0 = Time Label Axis)
-                            timetableModel.setValueAt(
-                                    new TaskSlot(placement, type),
-                                    row, dayIndex + 1
-                            );
+                            timetableModel.setValueAt(new TimetableCell(scheduledTask, type), row, dayIndex);
                             visibleRowCounter++;
                         }
                     }
                 }
 
-                currentDayStartMinutes = nextDayStartMinutes;
+                // Update for next iteration
+                currentDayStart = nextDayStart;
             }
         }
 
@@ -433,13 +418,13 @@ public class MainApplicationUI extends JFrame {
         updateNavigationButtons();
     }
 
-    private static LocalTime minutesToLocalTime(int minutesOfDay) {
-        int hours = minutesOfDay / 60;
-        int minutes = minutesOfDay % 60;
-        return LocalTime.of(hours, minutes);
+    private static long getMinutesSinceWeekStart(TimePoint startPoint) {
+        long dayOffsetMinutes = (startPoint.day().getValue() - 1) * MINUTES_PER_DAY;
+        long timeOffsetMinutes = startPoint.time().toSecondOfDay() / 60;
+        return dayOffsetMinutes + timeOffsetMinutes;
     }
 
-    // TOP PANE BUTTON LISTENERS
+    // TOP PANEL BUTTON LISTENERS
 
     private void openSettings() {
         SettingsUI settingsUI = new SettingsUI(this, slotInMinutes, lowerBound, upperBound);
@@ -478,10 +463,6 @@ public class MainApplicationUI extends JFrame {
         prevScheduleButton.setEnabled(currentScheduleIndex > 0);
         nextScheduleButton.setEnabled(currentScheduleIndex < schedulesList.size() - 1);
         scheduleNavLabel.setText("Schedule " + (currentScheduleIndex + 1) + "/" + schedulesList.size());
-    }
-
-    public int getSlotInMinutes() {
-        return slotInMinutes;
     }
 
     public void clearDetailSelection() {

@@ -46,10 +46,10 @@ public class ScheduleService {
         }
 
         EngineConfig config = new EngineConfig(slotInMinutes, storedSolutions, searchTime, scoringStrategy, groupConstraints);
-        List<List<TaskPlacement>> taskPlacements = SatEngine.schedule(tasks, config);
+        List<List<ScheduledTask>> scheduledTasks = SatEngine.schedule(tasks, config);
         List<Schedule> schedules = new ArrayList<>();
-        for (var taskPlacement : taskPlacements) {
-            Schedule schedule = new Schedule(scheduleRepository.getNextId(), taskPlacement);
+        for (var taskList : scheduledTasks) {
+            Schedule schedule = new Schedule(scheduleRepository.getNextId(), taskList);
             schedules.add(schedule);
         }
         scheduleRepository.deleteByUserId(userId);

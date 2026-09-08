@@ -2,17 +2,19 @@ package zhuangyan.timeplanning.model;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.time.Duration;
 
 /**
- * Combined representation of a Task Object with the TimePoint of its scheduled start and end.
+ * A Task fixed at a specific start TimePoint (end computed from duration).
+ * Replaces TaskPlacement and TaskSlot as the single "scheduled task" representation.
  */
-public record TaskPlacement(Task task, TimePoint start, TimePoint end) {
+public record ScheduledTask(Task task, TimePoint start, TimePoint end) {
 
-    public TaskPlacement(Task task, TimePoint start) {
+    public ScheduledTask(Task task, TimePoint start) {
         this(task, start, computeEnd(start, task.duration()));
     }
 
-    private static TimePoint computeEnd(TimePoint start, java.time.Duration duration) {
+    private static TimePoint computeEnd(TimePoint start, Duration duration) {
         LocalTime endTime = start.time().plus(duration);
         DayOfWeek endDay = start.day();
         if (endTime.isBefore(start.time()) || endTime.equals(LocalTime.MIDNIGHT)) {

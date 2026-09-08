@@ -3,13 +3,12 @@ package zhuangyan.timeplanning.service.schedule.engine;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.IntVar;
 import zhuangyan.timeplanning.model.Task;
+import zhuangyan.timeplanning.service.schedule.EngineConfig;
 import zhuangyan.timeplanning.service.schedule.ScheduleFilter;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
+import zhuangyan.timeplanning.time.TimeConverter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class SolutionCollector extends CpSolverSolutionCallback {
     private final Variables variables;
@@ -22,15 +21,19 @@ public class SolutionCollector extends CpSolverSolutionCallback {
     private final ScheduleFilter filter;
     private final ScoringStrategy strategy;
 
-    public SolutionCollector(Variables variables, List<Task> tasks, ScoringStrategy strategy, ScheduleFilter filter, int storedSolutions) {
+    private final int[] slots;
+
+    public SolutionCollector(Variables variables, List<Task> tasks, EngineConfig config) {
         this.variables = variables;
         this.tasks = tasks;
 
-        this.storedSolutions = storedSolutions;
+        this.storedSolutions = config.storedSolutions();
         this.bestSolutions = new PriorityQueue<>(this::compare);
 
-        this.filter = filter;
-        this.strategy = strategy;
+        this.filter = new ScheduleFilter(config);
+        this.strategy = config.strategy();
+
+        this.slots = new int[variables.startSlots().size()];
     }
 
     // Internal flag: Short Circuit the filter computation if all (-> the worst) solutions have 0 violations
@@ -40,28 +43,33 @@ public class SolutionCollector extends CpSolverSolutionCallback {
     @Override
     public void onSolutionCallback() {
         try {
-            List<Integer> slotsCopy = copySlots(variables.startSlots());
+            copySlots(variables.startSlots());
 
             // Kick solutions with > 0 violations out if the best solutions already have 0 violations at most
-            if (shortCircuit && !filter.zeroViolations(slotsCopy, tasks)) return;
+            if (shortCircuit && !filter.zeroViolations(slots, tasks)) return;
 
             // Evaluate using filter and strategy.
-            int violations = shortCircuit ? 0 : filter.amountViolations(slotsCopy, tasks);
-            double score = strategy != null ? strategy.score(slotsCopy, tasks) : 0.0;
+            int violations = shortCircuit ? 0 : filter.amountViolations(slots, tasks);
+            double score = strategy != null ? strategy.score(slots, tasks) : 0.0;
 
             // Store in bestSolutions.
-            ScoredSolution solution = new ScoredSolution(slotsCopy, score, violations);
+
             if (bestSolutions.size() < storedSolutions) {
+
+                ScoredSolution solution = new ScoredSolution(Arrays.copyOf(slots, slots.length), score, violations);// Not null, since size() == storedSolutions
                 bestSolutions.add(solution);
             }
             // Sorted in Ascending Order (worst < bad < good < best) -> if worst < current
-            else if (compare(bestSolutions.peek(), solution) < 0) { // Not null, since size() == storedSolutions
+            else if (compare(bestSolutions.peek(), violations, score) < 0) {
+                // Update Short Circuiting Flag
                 if (!shortCircuit) {
                     shortCircuit = bestSolutions.poll().violations() == 0;
                 }
                 else {
                     bestSolutions.poll();
                 }
+
+                ScoredSolution solution = new ScoredSolution(Arrays.copyOf(slots, slots.length), score, violations);// Not null, since size() == storedSolutions
                 bestSolutions.add(solution);
             }
         } catch (Exception e) {
@@ -70,14 +78,13 @@ public class SolutionCollector extends CpSolverSolutionCallback {
         }
     }
 
-    private List<Integer> copySlots(List<IntVar> startSlots) {
-        ArrayList<Integer> slotsCopy = new ArrayList<>();
+    private void copySlots(List<IntVar> startSlots) {
         for (int i = 0; i < startSlots.size(); i++) {
             IntVar cur = startSlots.get(i);
-            slotsCopy.add((int) value(cur));
+            slots[i] = (int) value(cur);
         }
-        return slotsCopy;
     }
+
 
     // a < b <=> b.violations() < a.violations() (if !=) or a.score() < b.score() (if ==)
     private int compare(ScoredSolution a, ScoredSolution b) {
@@ -86,6 +93,14 @@ public class SolutionCollector extends CpSolverSolutionCallback {
             return violations;
         }
         return Double.compare(a.score(), b.score());
+    }
+
+    private int compare(ScoredSolution a, int violations, double score) {
+        int compareViolations = Integer.compare(violations, a.violations());
+        if (compareViolations != 0) {
+            return compareViolations;
+        }
+        return Double.compare(a.score(), score);
     }
 
     // Descending Order (Head: best -> Tail: worst)

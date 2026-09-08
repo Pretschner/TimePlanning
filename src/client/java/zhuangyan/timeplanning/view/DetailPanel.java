@@ -2,8 +2,8 @@ package zhuangyan.timeplanning.view;
 
 import zhuangyan.timeplanning.controller.ControllerCaller;
 import zhuangyan.timeplanning.model.GroupConstraint;
+import zhuangyan.timeplanning.model.ScheduledTask;
 import zhuangyan.timeplanning.model.Task;
-import zhuangyan.timeplanning.model.TaskPlacement;
 import zhuangyan.timeplanning.view.dialogs.ConstraintDialog;
 import zhuangyan.timeplanning.view.dialogs.TaskDialog;
 
@@ -210,13 +210,13 @@ public class DetailPanel extends JPanel {
         cardLayout.show(this, "CONSTRAINT");
     }
 
-    public void showPlacement(TaskPlacement placement) {
-        Task task = placement.task();
+    public void showPlacement(ScheduledTask scheduledTask) {
+        Task task = scheduledTask.task();
         placementName.setText(task.name());
         placementGroup.setText(task.group());
         placementDuration.setText(task.duration().toString());
-        placementStart.setText(placement.start().toString());
-        placementEnd.setText(placement.end().toString());
+        placementStart.setText(scheduledTask.start().toString());
+        placementEnd.setText(scheduledTask.end().toString());
 
         cardLayout.show(this, "PLACEMENT");
     }

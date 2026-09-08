@@ -28,15 +28,15 @@ public class ScheduleFilter {
         constraints = config.constraints();
     }
 
-    public boolean zeroViolations(List<Integer> slots, List<Task> tasks) {
+    public boolean zeroViolations(int[] slots, List<Task> tasks) {
         return accept(slots, tasks, true) == 0;
     }
 
-    public int amountViolations(List<Integer> slots, List<Task> tasks) {
+    public int amountViolations(int[] slots, List<Task> tasks) {
         return accept(slots, tasks, false);
     }
 
-    private int accept(List<Integer> slots, List<Task> tasks, boolean shortCircuit) {
+    private int accept(int[] slots, List<Task> tasks, boolean shortCircuit) {
         List<ScheduledTask> schedule = convert(slots, tasks);
         int count = 0;
         for (GroupConstraint constraint : constraints) {
@@ -93,12 +93,12 @@ public class ScheduleFilter {
         return previousSource != null ? previousSource : fallBack;
     }
 
-    private List<ScheduledTask> convert(List<Integer> slots, List<Task> tasks) {
+    private List<ScheduledTask> convert(int[] slots, List<Task> tasks) {
         List<ScheduledTask> schedule = new ArrayList<>();
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
 
-            int startSlot = slots.get(i);
+            int startSlot = slots[i];
             int duration = converter.fromDuration(task.duration());
 
             int endSlot = (startSlot + duration) % converter.getSlotsPerWeek();

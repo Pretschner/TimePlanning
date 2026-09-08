@@ -24,7 +24,7 @@ public class EarlyFinish extends ScoringStrategy {
     }
 
     @Override
-    public double score(List<Integer> startSlots, List<Task> tasks) {
+    public double score(int[] startSlots, List<Task> tasks) {
         String[] allocatedArray = allocationArray(startSlots, tasks);
         double counter = 0.0;
         int slotsPerDay = converter.getSlotsPerWeek() / 7;

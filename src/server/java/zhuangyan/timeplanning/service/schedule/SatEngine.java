@@ -17,7 +17,7 @@ public class SatEngine {
      * according to the ScoringStrategy.
      */
 
-    public static List<List<TaskPlacement>> schedule(List<Task> tasks, EngineConfig config) {
+    public static List<List<ScheduledTask>> schedule(List<Task> tasks, EngineConfig config) {
         Loader.loadNativeLibraries();
         CpModel model = new CpModel();
 
@@ -26,7 +26,7 @@ public class SatEngine {
         applyNoOverlap(model, variables);
 
         // Solve
-        SolutionCollector store = new SolutionCollector(variables, tasks, config.strategy(), new ScheduleFilter(config), config.storedSolutions());
+        SolutionCollector store = new SolutionCollector(variables, tasks, config);
         CpSolver solver = new CpSolver();
         solver.getParameters().setEnumerateAllSolutions(true);
         solver.getParameters().setMaxTimeInSeconds(config.searchTime());
@@ -35,7 +35,7 @@ public class SatEngine {
         // Return Placements
         List<ScoredSolution> bestSolutions = store.bestSchedules();
 
-        return mapToPlacements(bestSolutions, tasks, config);
+        return mapToScheduledTasks(bestSolutions, tasks, config);
     }
 
     public static Variables createVariables(CpModel model, List<Task> tasks, EngineConfig config) {
@@ -85,20 +85,20 @@ public class SatEngine {
         model.addNoOverlap(allIntervals);
     }
 
-    public static List<List<TaskPlacement>> mapToPlacements(List<ScoredSolution> bestSolutions, List<Task> tasks, EngineConfig config) {
+    public static List<List<ScheduledTask>> mapToScheduledTasks(List<ScoredSolution> bestSolutions, List<Task> tasks, EngineConfig config) {
         TimeConverter converter = new TimeConverter(config.slotInMinutes());
-        List<List<TaskPlacement>> schedules = new ArrayList<>();
+        List<List<ScheduledTask>> schedules = new ArrayList<>();
 
         while (!bestSolutions.isEmpty()) {
             ScoredSolution currentSolution = bestSolutions.remove(0);
-            List<Integer> slots = currentSolution.slots();
+            int[] slots = currentSolution.slots();
 
-            List<TaskPlacement> currentSchedule = new ArrayList<>();
+            List<ScheduledTask> currentSchedule = new ArrayList<>();
 
             for (int i = 0; i < tasks.size(); i++) {
-                int slot = slots.get(i);
+                int slot = slots[i];
                 TimePoint start = converter.toTimePoint(slot);
-                currentSchedule.add(new TaskPlacement(tasks.get(i), start));
+                currentSchedule.add(new ScheduledTask(tasks.get(i), start));
             }
 
             currentSchedule.sort(Comparator.comparingInt(a -> converter.fromTimePoint(a.start())));
