@@ -7,6 +7,7 @@ import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.service.AuthenticationService;
 import zhuangyan.timeplanning.service.ScheduleService;
+import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class ScheduleResource {
         if (slotInMinutes <= 0) {
             return ResponseEntity.badRequest().build();
         }
-        List<ScheduleConfig.Strategy> strategy = config.scoringStrategies();
+        List<Strategy> strategy = config.scoringStrategies();
         int storedSolutions = config.storedSolutions();
         int maximumSearchTime = config.searchTime();
         long userId = authenticationService.getUserId(authHeader);

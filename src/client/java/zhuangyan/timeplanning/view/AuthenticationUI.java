@@ -1,12 +1,13 @@
 package zhuangyan.timeplanning.view;
 
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import org.springframework.web.client.RestClientException;
 import zhuangyan.timeplanning.controller.AuthenticationController;
 import zhuangyan.timeplanning.model.Credentials;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /** Login/signup screen with card layout switching; on success hands off to {@code MainApplicationUI}. */
 public class AuthenticationUI extends JFrame {
@@ -91,8 +92,8 @@ public class AuthenticationUI extends JFrame {
         JLabel switchToSignup = new JLabel("Don't have an account? Sign Up", SwingConstants.CENTER);
         switchToSignup.setForeground(Color.BLUE.darker());
         switchToSignup.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        switchToSignup.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        switchToSignup.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 cardLayout.show(mainPanel, "SIGNUP");
                 clearSignupFields(); // Fresh start
             }
@@ -161,8 +162,8 @@ public class AuthenticationUI extends JFrame {
         JLabel switchToLogin = new JLabel("Already have an account? Log In", SwingConstants.CENTER);
         switchToLogin.setForeground(Color.BLUE.darker());
         switchToLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        switchToLogin.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        switchToLogin.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 cardLayout.show(mainPanel, "LOGIN");
                 clearLoginFields();
             }

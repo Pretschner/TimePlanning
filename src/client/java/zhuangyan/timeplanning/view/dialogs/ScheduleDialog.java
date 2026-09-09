@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.view.dialogs;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.view.MainApplicationUI;
 import zhuangyan.timeplanning.view.dialogs.panels.ButtonPanel;
+import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,8 +53,8 @@ public class ScheduleDialog {
         final List<JSpinner> spinners = new ArrayList<>();
         ButtonGroup group = new ButtonGroup();
 
-        ScheduleConfig.Strategy[] strategies = {ScheduleConfig.Strategy.Early_Finish, ScheduleConfig.Strategy.Flow_State,
-                ScheduleConfig.Strategy.Grouped_Leisure, ScheduleConfig.Strategy.Memorizable_Schedule};
+        Strategy[] strategies = {Strategy.Early_Finish, Strategy.Flow_State,
+                Strategy.Grouped_Leisure, Strategy.Memorizable_Schedule};
         String[] descriptions = {
                 "Avoid late night work and get to rest sooner on average.",
                 "Achieve a flow state of mind by grouping similar tasks together.",
@@ -140,18 +141,18 @@ public class ScheduleDialog {
             int searchTime = (int) time.getSelectedItem();
 
             ScheduleConfig config;
-            List<ScheduleConfig.Strategy> strategyList;
+            List<Strategy> strategyList;
             if (combine.isSelected()) {
 
                 strategyList = new ArrayList<>();
                 List<Integer> weights = spinners.stream().map(s -> (int)s.getValue()).toList();
 
                 for (int i = 0; i < weights.size(); i++) {
-                    ScheduleConfig.Strategy strategy = switch(i) {
-                        case 0 -> ScheduleConfig.Strategy.Early_Finish;
-                        case 1 -> ScheduleConfig.Strategy.Flow_State;
-                        case 2 -> ScheduleConfig.Strategy.Grouped_Leisure;
-                        case 3 -> ScheduleConfig.Strategy.Memorizable_Schedule;
+                    Strategy strategy = switch(i) {
+                        case 0 -> Strategy.Early_Finish;
+                        case 1 -> Strategy.Flow_State;
+                        case 2 -> Strategy.Grouped_Leisure;
+                        case 3 -> Strategy.Memorizable_Schedule;
                         default -> null;
                     };
                     if (strategy == null) continue;
@@ -164,7 +165,7 @@ public class ScheduleDialog {
                     System.out.println(s);
                 }
             } else {
-                ScheduleConfig.Strategy selected = null;
+                Strategy selected = null;
                 for (int i = 0; i < radioButtons.size(); i++) {
                     if (radioButtons.get(i).isSelected()) {
                         selected = strategies[i];

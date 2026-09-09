@@ -1,6 +1,6 @@
 package zhuangyan.timeplanning.service.schedule.strategies;
 
-import zhuangyan.timeplanning.model.ScheduleConfig;
+import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
 import zhuangyan.timeplanning.time.TimeConverter;
@@ -19,8 +19,8 @@ public class EarlyFinish extends ScoringStrategy {
     }
 
     @Override
-    public ScheduleConfig.Strategy getType() {
-        return ScheduleConfig.Strategy.Early_Finish;
+    public Strategy getType() {
+        return Strategy.Early_Finish;
     }
 
     @Override
