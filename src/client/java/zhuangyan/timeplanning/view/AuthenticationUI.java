@@ -79,7 +79,6 @@ public class AuthenticationUI extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         loginButton = new JButton("Log In");
         loginButton.setPreferredSize(new Dimension(120, 35));

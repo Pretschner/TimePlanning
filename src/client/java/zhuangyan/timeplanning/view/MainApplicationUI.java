@@ -51,8 +51,8 @@ public class MainApplicationUI extends JFrame {
 
 
     public MainApplicationUI() {
-        initUI();
         this.controllerCaller = new ControllerCaller(this);
+        initUI();
         controllerCaller.syncAllDataFromServer();
     }
 
