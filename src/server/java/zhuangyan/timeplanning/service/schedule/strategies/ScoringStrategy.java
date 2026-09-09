@@ -1,4 +1,4 @@
-package zhuangyan.timeplanning.service.schedule;
+package zhuangyan.timeplanning.service.schedule.strategies;
 
 import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 import zhuangyan.timeplanning.model.Task;

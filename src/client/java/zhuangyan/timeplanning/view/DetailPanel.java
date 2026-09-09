@@ -6,7 +6,7 @@ import zhuangyan.timeplanning.model.ScheduledTask;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.view.dialogs.ConstraintDialog;
 import zhuangyan.timeplanning.view.dialogs.TaskDialog;
-import zhuangyan.timeplanning.view.renderers.ColorSelector;
+import zhuangyan.timeplanning.view.util.ColorSelector;
 
 import javax.swing.*;
 import java.awt.*;

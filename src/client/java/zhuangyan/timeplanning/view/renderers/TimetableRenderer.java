@@ -1,5 +1,7 @@
 package zhuangyan.timeplanning.view.renderers;
 
+import zhuangyan.timeplanning.view.util.ColorSelector;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;

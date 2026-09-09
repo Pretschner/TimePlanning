@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import zhuangyan.timeplanning.model.*;
 import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 import zhuangyan.timeplanning.repository.BaseRepository;
-import zhuangyan.timeplanning.service.schedule.EngineConfig;
-import zhuangyan.timeplanning.service.schedule.SatEngine;
-import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
+import zhuangyan.timeplanning.service.schedule.engine.EngineConfig;
+import zhuangyan.timeplanning.service.schedule.engine.SatEngine;
+import zhuangyan.timeplanning.service.schedule.strategies.ScoringStrategy;
 import zhuangyan.timeplanning.service.schedule.strategies.*;
 import zhuangyan.timeplanning.time.TimeConverter;
 

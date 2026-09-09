@@ -7,7 +7,7 @@ import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.repository.BaseRepository;
-import zhuangyan.timeplanning.service.schedule.CsvParser;
+import zhuangyan.timeplanning.service.CsvParser;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -1,4 +1,4 @@
-package zhuangyan.timeplanning.service.schedule;
+package zhuangyan.timeplanning.service;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.model.Task;

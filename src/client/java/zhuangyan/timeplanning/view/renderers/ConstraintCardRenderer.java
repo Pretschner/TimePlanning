@@ -1,6 +1,7 @@
 package zhuangyan.timeplanning.view.renderers;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
+import zhuangyan.timeplanning.view.util.ColorSelector;
 
 import javax.swing.*;
 import java.awt.*;

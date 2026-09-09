@@ -5,6 +5,7 @@ import zhuangyan.timeplanning.model.*;
 import zhuangyan.timeplanning.view.dialogs.*;
 import zhuangyan.timeplanning.view.renderers.*;
 import zhuangyan.timeplanning.view.renderers.TimetableCell.SlotType;
+import zhuangyan.timeplanning.view.util.TimetableGrid;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

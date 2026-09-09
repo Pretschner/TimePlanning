@@ -1,4 +1,4 @@
-package zhuangyan.timeplanning.view;
+package zhuangyan.timeplanning.view.util;
 
 import java.time.Duration;
 import java.time.LocalTime;
