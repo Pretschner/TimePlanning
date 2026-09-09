@@ -4,7 +4,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
-import zhuangyan.timeplanning.model.Config;
+import zhuangyan.timeplanning.Config;
 import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 

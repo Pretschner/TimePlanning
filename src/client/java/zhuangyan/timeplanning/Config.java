@@ -1,4 +1,4 @@
-package zhuangyan.timeplanning.model;
+package zhuangyan.timeplanning;
 
 public class Config {
     /**
