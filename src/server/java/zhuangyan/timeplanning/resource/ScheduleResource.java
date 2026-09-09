@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.ScheduleConfig;
-import zhuangyan.timeplanning.model.Strategy;
 import zhuangyan.timeplanning.service.AuthenticationService;
 import zhuangyan.timeplanning.service.ScheduleService;
 
@@ -28,7 +27,7 @@ public class ScheduleResource {
         if (slotInMinutes <= 0) {
             return ResponseEntity.badRequest().build();
         }
-        List<Strategy> strategy = config.scoringStrategies();
+        List<ScheduleConfig.Strategy> strategy = config.scoringStrategies();
         int storedSolutions = config.storedSolutions();
         int maximumSearchTime = config.searchTime();
         long userId = authenticationService.getUserId(authHeader);

@@ -1,6 +1,6 @@
 package zhuangyan.timeplanning.service.schedule;
 
-import zhuangyan.timeplanning.model.Strategy;
+import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.time.TimeConverter;
 
@@ -18,7 +18,7 @@ public abstract class ScoringStrategy {
 
     public abstract double score(int[] startSlots, List<Task> tasks);
 
-    public abstract Strategy getType();
+    public abstract ScheduleConfig.Strategy getType();
 
     protected String[] allocationArray(int[] startSlots, List<Task> tasks) {
         int slotsPerWeek = converter.getSlotsPerWeek();

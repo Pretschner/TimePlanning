@@ -1,6 +1,6 @@
 package zhuangyan.timeplanning.service.schedule.strategies;
 
-import zhuangyan.timeplanning.model.Strategy;
+import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
 import zhuangyan.timeplanning.time.TimeConverter;
@@ -12,7 +12,7 @@ public class CombinedStrategy extends ScoringStrategy {
      * A Strategy based on the weighted sum of different strategies.
      */
     private final List<ScoringStrategy> strategies;
-    private final Map<Strategy, Integer> weights;
+    private final Map<ScheduleConfig.Strategy, Integer> weights;
 
     public CombinedStrategy(List<ScoringStrategy> strategies) {
         super(new TimeConverter(30)); // dummy, not used
@@ -20,7 +20,7 @@ public class CombinedStrategy extends ScoringStrategy {
         weights = new HashMap<>();
 
         for (var strategy : strategies) {
-            Strategy enumValue = strategy.getType();
+            ScheduleConfig.Strategy enumValue = strategy.getType();
             if (!weights.containsKey(enumValue)) {
                 weights.put(enumValue, 1);
                 this.strategies.add(strategy);
@@ -31,7 +31,7 @@ public class CombinedStrategy extends ScoringStrategy {
     }
 
     @Override
-    public Strategy getType() {
+    public ScheduleConfig.Strategy getType() {
         return null; // CombinedStrategy has no single type
     }
 

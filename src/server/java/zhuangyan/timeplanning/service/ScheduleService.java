@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import zhuangyan.timeplanning.model.*;
+import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 import zhuangyan.timeplanning.repository.BaseRepository;
 import zhuangyan.timeplanning.service.schedule.EngineConfig;
 import zhuangyan.timeplanning.service.schedule.SatEngine;
