@@ -77,7 +77,7 @@ public class DetailPanel extends JPanel {
 
     public JPanel createWelcomeScreen() {
         JPanel panel = new JPanel(new BorderLayout());
-        JLabel welcome = new JLabel("Welcome to Time Planning!");
+        JLabel welcome = new JLabel("<html>" + "Welcome to Time Planning!" + "</html>");
         welcome.setFont(welcome.getFont().deriveFont(Font.BOLD, H1));
 
         panel.add(welcome, BorderLayout.NORTH);
@@ -319,11 +319,11 @@ public class DetailPanel extends JPanel {
         taskColorDot.setBackground(ColorSelector.colorForGroup(task.group()));
 
         // Fields
-        taskName.setText(task.name());
+        taskName.setText("<html>" + task.name() + "</html>");
         taskGroup.setText(task.group());
         taskDuration.setText(task.duration().toMinutes() + " min");
-        taskEarliest.setText(task.timeWindow().earliestStart().toString());
-        taskLatest.setText(task.timeWindow().latestEnd().toString());
+        taskEarliest.setText(task.timeWindow().earliestStart().toPrettyString());
+        taskLatest.setText(task.timeWindow().latestEnd().toPrettyString());
 
         // Listeners
         if (taskEditListener != null) taskEdit.removeActionListener(taskEditListener);
@@ -369,11 +369,11 @@ public class DetailPanel extends JPanel {
         placementColorDot.setBackground(ColorSelector.colorForGroup(task.group()));
 
         // Fields
-        placementName.setText(task.name());
+        placementName.setText("<html>" + task.name() + "</html>");
         placementGroup.setText(task.group());
         placementDuration.setText(task.duration().toMinutes() + " min");
-        placementStart.setText(scheduledTask.start().toString());
-        placementEnd.setText(scheduledTask.end().toString());
+        placementStart.setText(scheduledTask.start().toPrettyString());
+        placementEnd.setText(scheduledTask.end().toPrettyString());
 
         cardLayout.show(this, "PLACEMENT");
     }

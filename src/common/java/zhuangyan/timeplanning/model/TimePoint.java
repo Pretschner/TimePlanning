@@ -11,4 +11,8 @@ public record TimePoint(DayOfWeek day, LocalTime time) {
     public String toString() {
         return day.toString().substring(0, 3) + ", " + time.toString();
     }
+
+    public String toPrettyString() {
+        return day.toString() + ", " + time.toString();
+    }
 }
