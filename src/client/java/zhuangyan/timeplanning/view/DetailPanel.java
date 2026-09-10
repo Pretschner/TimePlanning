@@ -321,7 +321,7 @@ public class DetailPanel extends JPanel {
         // Fields
         taskName.setText(task.name());
         taskGroup.setText(task.group());
-        taskDuration.setText(task.duration().toString());
+        taskDuration.setText(task.duration().toMinutes() + " min");
         taskEarliest.setText(task.timeWindow().earliestStart().toString());
         taskLatest.setText(task.timeWindow().latestEnd().toString());
 
@@ -346,8 +346,8 @@ public class DetailPanel extends JPanel {
         // Fields
         constraintSource.setText(constraint.sourceGroup());
         constraintTarget.setText(constraint.targetGroup());
-        constraintMin.setText(constraint.minimumGap() != null ? constraint.minimumGap().toString() : "N/A");
-        constraintMax.setText(constraint.maximumGap() != null ? constraint.maximumGap().toString() : "N/A");
+        constraintMin.setText(constraint.minimumGap() != null ? (constraint.minimumGap().toMinutes() + " min") : "N/A");
+        constraintMax.setText(constraint.maximumGap() != null ? (constraint.maximumGap().toMinutes() + " min") : "N/A");
 
         // Listeners
         if (constraintEditListener != null) constraintEdit.removeActionListener(constraintEditListener);
@@ -371,7 +371,7 @@ public class DetailPanel extends JPanel {
         // Fields
         placementName.setText(task.name());
         placementGroup.setText(task.group());
-        placementDuration.setText(task.duration().toString());
+        placementDuration.setText(task.duration().toMinutes() + " min");
         placementStart.setText(scheduledTask.start().toString());
         placementEnd.setText(scheduledTask.end().toString());
 
