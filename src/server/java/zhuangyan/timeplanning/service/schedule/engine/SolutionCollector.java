@@ -6,7 +6,6 @@ import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.service.schedule.ScheduleFilter;
 import zhuangyan.timeplanning.service.schedule.strategies.ScoringStrategy;
 
-
 import java.util.*;
 
 public class SolutionCollector extends CpSolverSolutionCallback {
@@ -29,7 +28,7 @@ public class SolutionCollector extends CpSolverSolutionCallback {
         this.storedSolutions = config.storedSolutions();
         this.bestSolutions = new PriorityQueue<>(this::compare);
 
-        this.filter = new ScheduleFilter(config);
+        this.filter = new ScheduleFilter(config.converter(), config.constraints());
         this.strategy = config.strategy();
 
         this.slots = new int[variables.startSlots().size()];

@@ -24,25 +24,22 @@ public class SatEngine {
 
         applyNoOverlap(model, variables);
 
-        // Solve
         SolutionCollector store = new SolutionCollector(variables, tasks, config);
         CpSolver solver = new CpSolver();
         solver.getParameters().setEnumerateAllSolutions(true);
         solver.getParameters().setMaxTimeInSeconds(config.searchTime());
-        solver.solve(model, store); // Callback to Store on Solution
+        solver.solve(model, store);
 
-        // Return Placements
         List<ScoredSolution> bestSolutions = store.bestSchedules();
 
         return mapToScheduledTasks(bestSolutions, tasks, config);
     }
 
     public static Variables createVariables(CpModel model, List<Task> tasks, EngineConfig config) {
-        TimeConverter converter = new TimeConverter(config.slotInMinutes());
+        TimeConverter converter = config.converter();
         List<IntVar> startSlots = new ArrayList<>();
         List<IntervalVar> intervals = new ArrayList<>();
         List<IntervalVar> shiftedIntervals = new ArrayList<>();
-        // Add variables
         for (Task task : tasks) {
             int duration = converter.fromDuration(task.duration());
 
@@ -52,22 +49,17 @@ public class SatEngine {
             int latestStart = converter.fromTimePoint(window.latestEnd()) - duration;
 
             IntVar start;
-            // Normal window
             if (earliestStart <= latestStart) {
                 start = model.newIntVar(earliestStart, latestStart, task.name() + "_start");
-            }
-            // Wrapped window
-            else {
+            } else {
                 Domain domain = Domain.fromIntervals(new long[][]{{earliestStart, converter.getSlotsPerWeek() - 1}, {0, latestStart}});
                 start = model.newIntVarFromDomain(domain, task.name() + "_start");
             }
             startSlots.add(start);
 
-            // Actual task interval: [start, start + duration)
             IntervalVar interval = model.newFixedSizeIntervalVar(start, duration, task.name() + "_interval");
             intervals.add(interval);
 
-            // Same interval shifted by 1 week.
             IntVar shiftedStart = model.newIntVar(converter.getSlotsPerWeek(), 2L * converter.getSlotsPerWeek() - 1, task.name() + "_shifted_start");
             model.addEquality(shiftedStart, LinearExpr.affine(start, 1, converter.getSlotsPerWeek()));
 
@@ -85,7 +77,7 @@ public class SatEngine {
     }
 
     public static List<List<ScheduledTask>> mapToScheduledTasks(List<ScoredSolution> bestSolutions, List<Task> tasks, EngineConfig config) {
-        TimeConverter converter = new TimeConverter(config.slotInMinutes());
+        TimeConverter converter = config.converter();
         List<List<ScheduledTask>> schedules = new ArrayList<>();
 
         while (!bestSolutions.isEmpty()) {
@@ -111,4 +103,3 @@ public class SatEngine {
         return schedules;
     }
 }
-

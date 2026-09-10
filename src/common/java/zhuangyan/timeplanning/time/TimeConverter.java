@@ -7,24 +7,47 @@ import java.time.Duration;
 import java.time.LocalTime;
 
 public class TimeConverter {
-    /**
-     * Tool for converting TimePoint and Duration Objects into their slot representation used in SatEngine.
-     */
-
     private final int slotInMinutes;
+    private final int slotsPerDay;
+    private final int slotsPerWeek;
 
-    public TimeConverter(int slotInMinutes) {
+    private final LocalTime viewStart;
+    private final LocalTime viewEnd;
+    private final int viewStartSlot;
+    private final int viewEndSlot;
+    private final int visibleRows;
+
+    private TimeConverter(int slotInMinutes, LocalTime viewStart, LocalTime viewEnd) {
         if (slotInMinutes <= 0) {
-            throw new IllegalArgumentException(
-                    "slotInMinutes must be positive."
-            );
+            throw new IllegalArgumentException("slotInMinutes must be positive.");
         }
-
         this.slotInMinutes = slotInMinutes;
+        this.slotsPerDay = (24 * 60) / slotInMinutes;
+        this.slotsPerWeek = 7 * slotsPerDay;
+
+        if (viewStart != null && viewEnd != null) {
+            this.viewStart = viewStart;
+            this.viewEnd = viewEnd;
+            this.viewStartSlot = (viewStart.toSecondOfDay() / 60) / slotInMinutes;
+            this.viewEndSlot = (viewEnd.toSecondOfDay() / 60) / slotInMinutes + 1;
+            this.visibleRows = (int) Duration.between(viewStart, viewEnd).toMinutes() / slotInMinutes + 1;
+        } else {
+            this.viewStart = this.viewEnd = null;
+            this.viewStartSlot = this.viewEndSlot = 0;
+            this.visibleRows = 0;
+        }
+    }
+
+    public static TimeConverter create(int slotInMinutes, LocalTime viewStart, LocalTime viewEnd) {
+        return new TimeConverter(slotInMinutes, viewStart, viewEnd);
+    }
+
+    public static TimeConverter create(int slotInMinutes) {
+        return new TimeConverter(slotInMinutes, null, null);
     }
 
     public int fromTimePoint(TimePoint timePoint) {
-        int day = timePoint.day().getValue() - 1; // Monday = 0
+        int day = timePoint.day().getValue() - 1;
 
         int minutesOfDay =
                 timePoint.time().getHour() * 60
@@ -37,15 +60,11 @@ public class TimeConverter {
             );
         }
 
-        int slotsPerDay = (24 * 60) / slotInMinutes;
-
         return day * slotsPerDay
                 + (minutesOfDay / slotInMinutes);
     }
 
     public TimePoint toTimePoint(int slot) {
-        int slotsPerDay = (24 * 60) / slotInMinutes;
-
         int dayIndex = slot / slotsPerDay;
         int slotOfDay = slot % slotsPerDay;
 
@@ -81,23 +100,28 @@ public class TimeConverter {
         return (int) (minutes / slotInMinutes);
     }
 
-    public Duration toDuration(int slots) {
-        if (slots < 0) {
-            throw new IllegalArgumentException(
-                    "Number of slots must be non-negative."
-            );
-        }
-
-        return Duration.ofMinutes(
-                (long) slots * slotInMinutes
-        );
-    }
-
-    public int getSlotInMinutes() {
-        return slotInMinutes;
-    }
-
     public int getSlotsPerWeek() {
-        return 7 * 24 * 60 / slotInMinutes;
+        return slotsPerWeek;
+    }
+
+    public int getSlotsPerDay() {
+        return slotsPerDay;
+    }
+
+    public int toRow(int slot) {
+        int slotOfDay = slot % slotsPerDay;
+        if (slotOfDay < viewStartSlot || slotOfDay >= viewEndSlot) return -1;
+        return slotOfDay - viewStartSlot;
+    }
+
+    public String[] getRowLabels() {
+        if (viewStart == null) return new String[0];
+        String[] labels = new String[visibleRows];
+        LocalTime current = viewStart;
+        for (int i = 0; i < visibleRows; i++) {
+            labels[i] = current.toString();
+            current = current.plusMinutes(slotInMinutes);
+        }
+        return labels;
     }
 }

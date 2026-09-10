@@ -2,7 +2,6 @@ package zhuangyan.timeplanning.service.schedule;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.model.Task;
-import zhuangyan.timeplanning.service.schedule.engine.EngineConfig;
 import zhuangyan.timeplanning.time.TimeConverter;
 
 import java.util.ArrayList;
@@ -22,11 +21,6 @@ public class ScheduleFilter {
     public ScheduleFilter(TimeConverter converter, List<GroupConstraint> constraints) {
         this.converter = converter;
         this.constraints = constraints == null ? List.of() : constraints;
-    }
-
-    public ScheduleFilter(EngineConfig config) {
-        converter = new TimeConverter(config.slotInMinutes());
-        constraints = config.constraints();
     }
 
     public boolean zeroViolations(int[] slots, List<Task> tasks) {

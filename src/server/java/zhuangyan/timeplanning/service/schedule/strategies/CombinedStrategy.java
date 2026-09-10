@@ -14,7 +14,7 @@ public class CombinedStrategy extends ScoringStrategy {
     private final Map<Strategy, Integer> weights;
 
     public CombinedStrategy(List<ScoringStrategy> strategies) {
-        super(new TimeConverter(30)); // dummy, not used
+        super(TimeConverter.create(30)); // dummy, not used
         this.strategies = new ArrayList<>();
         weights = new HashMap<>();
 

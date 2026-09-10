@@ -24,9 +24,9 @@ public class ServerSanityCheck {
             System.out.println("Loaded " + tasks.size() + " tasks.");
 
             // Schedule
-            TimeConverter converter = new TimeConverter(15);
+            TimeConverter converter = TimeConverter.create(15);
             List<GroupConstraint> constraints = List.of(new GroupConstraint(1L, "Meal", "Gym", Duration.ofMinutes(60), null));
-            EngineConfig config = new EngineConfig(15, 3, 15, new MemorizableSchedule(converter), constraints);
+            EngineConfig config = new EngineConfig(converter, 3, 15, new MemorizableSchedule(converter), constraints);
 
             List<ScheduledTask> schedule = SatEngine.schedule(tasks, config).get(0);
 

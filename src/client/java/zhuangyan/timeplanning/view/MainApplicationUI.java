@@ -2,17 +2,19 @@ package zhuangyan.timeplanning.view;
 
 import zhuangyan.timeplanning.controller.*;
 import zhuangyan.timeplanning.model.*;
+import zhuangyan.timeplanning.time.TimeConverter;
 import zhuangyan.timeplanning.view.dialogs.*;
 import zhuangyan.timeplanning.view.renderers.*;
 import zhuangyan.timeplanning.view.renderers.TimetableCell.SlotType;
-import zhuangyan.timeplanning.view.util.TimetableGrid;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** The main dashboard: three tabs (Tasks, Constraints, Timetable) with add/edit/delete, template generation, and schedule navigation. */
 public class MainApplicationUI extends JFrame {
@@ -33,7 +35,7 @@ public class MainApplicationUI extends JFrame {
     // Timetable
     private JTable timetableTable;
     private DefaultTableModel timetableModel;
-    private TimetableGrid timetableGrid;
+    private TimeConverter timeConverter;
 
     // Timetable navigation
     private List<Schedule> schedulesList = new ArrayList<>();
@@ -237,10 +239,13 @@ public class MainApplicationUI extends JFrame {
     }
 
     private void rebuildTimetableModel() {
-        timetableGrid = new TimetableGrid(lowerBound, upperBound, slotInMinutes);
+        // Create TimeConverter with view window if not already created
+        if (timeConverter == null) {
+            timeConverter = TimeConverter.create(slotInMinutes, lowerBound, upperBound);
+        }
 
         // Generate Rows (Time Slots) and Columns ("Start Time" + Days)
-        String[] timeSlots = timetableGrid.rowLabels();
+        String[] timeSlots = timeConverter.getRowLabels();
         String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
         String[] columns = new String[days.length + 1];
         columns[0] = "Start Time";
@@ -336,8 +341,6 @@ public class MainApplicationUI extends JFrame {
         timetableTable.repaint();
     }
 
-    private static final long MINUTES_PER_DAY = 1440L;
-
     /**
      * Method that fills the DefaultTableModel with TimetableCell objects for rendering.
      * @param index the index in schedulesList at which the desired Schedule is located.
@@ -356,73 +359,35 @@ public class MainApplicationUI extends JFrame {
             return;
         }
 
-        // Table Boundaries in Minutes (e.g. 08:00 -> 480)
-        long lbMinutes = lowerBound.toSecondOfDay() / 60;
-        long ubMinutes = (upperBound.toSecondOfDay() / 60) + slotInMinutes;
-
-        // Iterate over Tasks to find their respective TimetableCell objects
         for (ScheduledTask scheduledTask : schedule.scheduledTasks()) {
+            int visibleCount = 0;
+            Task task = scheduledTask.task();
+            int startSlot = timeConverter.fromTimePoint(scheduledTask.start());
+            int durationSlots = timeConverter.fromDuration(task.duration());
+            int slotsPerDay = timeConverter.getSlotsPerDay();
 
-            // Convert Start TimePoint to minutes since Monday 00:00
-            long taskStart = getMinutesSinceWeekStart(scheduledTask.start());
-            long durationMinutes = scheduledTask.task().duration().toMinutes();
-            // Implicit Wraparound Handling
-            long taskEnd = taskStart + durationMinutes;
+            for (int offset = 0; offset < durationSlots; offset++) {
+                visibleCount++;
+                int slot = (startSlot + offset) % timeConverter.getSlotsPerWeek();
+                int dayIndex = slot / slotsPerDay;
+                int row = timeConverter.toRow(slot);
 
-            // Tracks visible rows to assign NAME (0) and TIME (1)
-            int visibleRowCounter = 0;
+                if (row < 0) continue; // Outside visible window
 
-            // Iterate every day that this task touches
-            long currentDayStart = (taskStart / MINUTES_PER_DAY) * MINUTES_PER_DAY;
-            while (currentDayStart < taskEnd) {
-                long nextDayStart = currentDayStart + MINUTES_PER_DAY;
+                int col = dayIndex + 1; // col 0 = time labels
 
-                // Clip Task to current Day
-                long taskStartThisDay = Math.max(taskStart, currentDayStart);
-                long taskEndThisDay = Math.min(taskEnd, nextDayStart);
+                SlotType type = switch (visibleCount) {
+                    case 1 -> SlotType.NAME_DISPLAY;
+                    case 2 -> SlotType.TIME_DISPLAY;
+                    default -> SlotType.BACKGROUND;
+                };
 
-                // Clip Day to Visible Grid
-                long gridStartThisDay = currentDayStart + lbMinutes;
-                long gridEndThisDay = currentDayStart + ubMinutes;
-
-                // => Clip Task to Visible Grid
-                long visibleStartThisDay = Math.max(taskStartThisDay, gridStartThisDay);
-                long visibleEndThisDay = Math.min(taskEndThisDay, gridEndThisDay);
-
-                // If there is any visible overlap on this day
-                if (visibleStartThisDay < visibleEndThisDay) {
-                    int startRow = timetableGrid.rowIndexOf(visibleStartThisDay % MINUTES_PER_DAY);
-                    // Subtract 1 minute so that an end time of 12:00 doesn't color the 12:00 row
-                    int endRow = timetableGrid.rowIndexOf((visibleEndThisDay - 1) % MINUTES_PER_DAY);
-
-                    if (startRow >= 0 && endRow >= 0) {
-                        // Wrap-Around Handling (%7), then increment by 1 (since col 0 is occupied): 1=Mon ... 7=Sun
-                        int dayIndex = (int) ((currentDayStart / MINUTES_PER_DAY) % 7) + 1;
-                        for (int row = startRow; row <= endRow; row++) {
-                            SlotType type = switch (visibleRowCounter) {
-                                case 0 -> SlotType.NAME_DISPLAY;
-                                case 1 -> SlotType.TIME_DISPLAY;
-                                default -> SlotType.BACKGROUND;
-                            };
-                            timetableModel.setValueAt(new TimetableCell(scheduledTask, type), row, dayIndex);
-                            visibleRowCounter++;
-                        }
-                    }
-                }
-
-                // Update for next iteration
-                currentDayStart = nextDayStart;
+                timetableModel.setValueAt(new TimetableCell(scheduledTask, type), row, col);
             }
         }
 
         timetableTable.repaint();
         updateNavigationButtons();
-    }
-
-    private static long getMinutesSinceWeekStart(TimePoint startPoint) {
-        long dayOffsetMinutes = (startPoint.day().getValue() - 1) * MINUTES_PER_DAY;
-        long timeOffsetMinutes = startPoint.time().toSecondOfDay() / 60;
-        return dayOffsetMinutes + timeOffsetMinutes;
     }
 
     // TOP PANEL BUTTON LISTENERS
@@ -435,6 +400,9 @@ public class MainApplicationUI extends JFrame {
             this.slotInMinutes = settingsUI.getSlotInMinutes();
             this.lowerBound = settingsUI.getLowerBound();
             this.upperBound = settingsUI.getUpperBound();
+
+            // Recreate TimeConverter with new settings
+            this.timeConverter = TimeConverter.create(slotInMinutes, lowerBound, upperBound);
 
             // Update Table Layout and Content
             rebuildTimetableModel();

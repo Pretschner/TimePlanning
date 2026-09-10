@@ -7,7 +7,6 @@ import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.service.AuthenticationService;
 import zhuangyan.timeplanning.service.ScheduleService;
-import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 
 import java.util.List;
 
@@ -24,15 +23,11 @@ public class ScheduleResource {
 
     @PostMapping("/schedules")
     public ResponseEntity<List<Schedule>> createSchedule(@RequestBody ScheduleConfig config, @RequestHeader("Authorization") String authHeader) {
-        int slotInMinutes = config.slotInMinutes();
-        if (slotInMinutes <= 0) {
+        if (config.slotInMinutes() <= 0) {
             return ResponseEntity.badRequest().build();
         }
-        List<Strategy> strategy = config.scoringStrategies();
-        int storedSolutions = config.storedSolutions();
-        int maximumSearchTime = config.searchTime();
         long userId = authenticationService.getUserId(authHeader);
-        List<Schedule> createdSchedule = scheduleService.createSchedule(slotInMinutes, strategy, storedSolutions, maximumSearchTime, userId);
+        List<Schedule> createdSchedule = scheduleService.createSchedule(config, userId);
         return ResponseEntity.ok(createdSchedule);
     }
 

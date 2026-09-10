@@ -28,26 +28,26 @@ public class ScheduleService {
         this.constraintService = constraintService;
     }
 
-    public List<Schedule> createSchedule(int slotInMinutes, List<Strategy> strategies, int storedSolutions, int searchTime, long userId) {
+    public List<Schedule> createSchedule(ScheduleConfig config, long userId) {
         List<Task> tasks = taskService.getTasks(userId);
         List<GroupConstraint> groupConstraints = constraintService.getGroupConstraints(userId);
-        TimeConverter converter = new TimeConverter(slotInMinutes);
+        TimeConverter converter = TimeConverter.create(config.slotInMinutes());
 
         ScoringStrategy scoringStrategy;
-        if (strategies == null || strategies.isEmpty()) {
+        if (config.scoringStrategies() == null || config.scoringStrategies().isEmpty()) {
             scoringStrategy = null;
-        } else if (strategies.size() == 1) {
-            scoringStrategy = initializeStrategy(strategies.get(0), converter);
+        } else if (config.scoringStrategies().size() == 1) {
+            scoringStrategy = initializeStrategy(config.scoringStrategies().get(0), converter);
         } else {
             List<ScoringStrategy> s = new ArrayList<>();
-            for (var strategy : strategies) {
+            for (var strategy : config.scoringStrategies()) {
                 s.add(initializeStrategy(strategy, converter));
             }
             scoringStrategy = new CombinedStrategy(s);
         }
 
-        EngineConfig config = new EngineConfig(slotInMinutes, storedSolutions, searchTime, scoringStrategy, groupConstraints);
-        List<List<ScheduledTask>> scheduledTasks = SatEngine.schedule(tasks, config);
+        EngineConfig engineConfig = new EngineConfig(converter, config.storedSolutions(), config.searchTime(), scoringStrategy, groupConstraints);
+        List<List<ScheduledTask>> scheduledTasks = SatEngine.schedule(tasks, engineConfig);
         List<Schedule> schedules = new ArrayList<>();
         for (var taskList : scheduledTasks) {
             Schedule schedule = new Schedule(scheduleRepository.getNextId(), taskList);
@@ -56,7 +56,6 @@ public class ScheduleService {
         scheduleRepository.deleteByUserId(userId);
         return scheduleRepository.save(schedules, userId, Schedule::id);
     }
-
 
     public List<Schedule> getSchedules(long userId) {
         return scheduleRepository.findByUserId(userId);
