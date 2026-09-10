@@ -3,10 +3,9 @@ package zhuangyan.timeplanning.service.schedule.engine;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.IntVar;
 import zhuangyan.timeplanning.model.Task;
-import zhuangyan.timeplanning.service.schedule.EngineConfig;
 import zhuangyan.timeplanning.service.schedule.ScheduleFilter;
-import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
-import zhuangyan.timeplanning.time.TimeConverter;
+import zhuangyan.timeplanning.service.schedule.strategies.ScoringStrategy;
+
 
 import java.util.*;
 

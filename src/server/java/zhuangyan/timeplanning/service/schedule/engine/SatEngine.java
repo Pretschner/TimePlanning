@@ -1,11 +1,10 @@
-package zhuangyan.timeplanning.service.schedule;
+package zhuangyan.timeplanning.service.schedule.engine;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.*;
 import com.google.ortools.util.Domain;
 import zhuangyan.timeplanning.exception.NotFoundException;
 import zhuangyan.timeplanning.model.*;
-import zhuangyan.timeplanning.service.schedule.engine.*;
 import zhuangyan.timeplanning.time.TimeConverter;
 
 import java.util.*;

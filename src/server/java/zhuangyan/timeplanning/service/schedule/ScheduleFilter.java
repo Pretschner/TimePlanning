@@ -2,6 +2,7 @@ package zhuangyan.timeplanning.service.schedule;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.model.Task;
+import zhuangyan.timeplanning.service.schedule.engine.EngineConfig;
 import zhuangyan.timeplanning.time.TimeConverter;
 
 import java.util.ArrayList;

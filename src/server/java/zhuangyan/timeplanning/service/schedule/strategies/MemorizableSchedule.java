@@ -2,7 +2,6 @@ package zhuangyan.timeplanning.service.schedule.strategies;
 
 import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 import zhuangyan.timeplanning.model.Task;
-import zhuangyan.timeplanning.service.schedule.ScoringStrategy;
 import zhuangyan.timeplanning.time.TimeConverter;
 
 import java.util.ArrayList;
