@@ -77,18 +77,28 @@ public class DetailPanel extends JPanel {
 
     public JPanel createWelcomeScreen() {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JLabel welcome = new JLabel("<html>" + "Welcome to Time Planning!" + "</html>");
         welcome.setFont(welcome.getFont().deriveFont(Font.BOLD, H1));
 
         panel.add(welcome, BorderLayout.NORTH);
 
-        String introductionText = "[Insert Introduction Here]";
+        String introductionText =
+                "<html> This application is dedicated to helping you keep track of your tasks. <br>" +
+                "Not by having a simple list for them, but by arranging them in a timetable that you can follow. <br>" +
+                "Hope you like it! </html>";
         JLabel introduction = new JLabel(introductionText);
-
+        introduction.setFont(introduction.getFont().deriveFont(Font.PLAIN, 14f));
         panel.add(introduction, BorderLayout.CENTER);
 
-        String documentationText = "[Insert Documentation Reference Here]";
+        String documentationText = "<html> <b> How to get started: </b> <br>" +
+                "1. Create tasks using the 'Add' button, or generate from 'Templates' while you're in the 'Tasks' tab. <br>" +
+                "2. Create constraints in a similar fashion while you're in the 'Constraints' tab. <br>" +
+                "3. Make sure all durations align to the slot length specified in the settings. <br>" +
+                "4. Select a Configuration by hitting the 'Generate' button and wait for your schedule to be created. <br>" +
+                "5. Head over to the Timetable tab and inspect your schedule! </html>";
         JLabel documentation = new JLabel(documentationText);
+        documentation.setFont(documentation.getFont().deriveFont(Font.PLAIN, 14f));
 
         panel.add(documentation, BorderLayout.SOUTH);
 
@@ -329,7 +339,10 @@ public class DetailPanel extends JPanel {
         if (taskEditListener != null) taskEdit.removeActionListener(taskEditListener);
         if (taskDeleteListener != null) taskDelete.removeActionListener(taskDeleteListener);
         taskEditListener = e -> TaskDialog.show(parent, task, caller::callUpdateTask);
-        taskDeleteListener = e -> caller.deleteTask(task);
+        taskDeleteListener = e -> {
+            caller.deleteTask(task);
+            parent.clearDetailSelection();
+        };
         taskEdit.addActionListener(taskEditListener);
         taskDelete.addActionListener(taskDeleteListener);
 
@@ -353,7 +366,10 @@ public class DetailPanel extends JPanel {
         if (constraintEditListener != null) constraintEdit.removeActionListener(constraintEditListener);
         if (constraintDeleteListener != null) constraintDelete.removeActionListener(constraintDeleteListener);
         constraintEditListener = e -> ConstraintDialog.show(parent, constraint, caller::callUpdateConstraint);
-        constraintDeleteListener = e -> caller.deleteConstraint(constraint);
+        constraintDeleteListener = e -> {
+            caller.deleteConstraint(constraint);
+            parent.clearDetailSelection();
+        };
         constraintEdit.addActionListener(constraintEditListener);
         constraintDelete.addActionListener(constraintDeleteListener);
 
