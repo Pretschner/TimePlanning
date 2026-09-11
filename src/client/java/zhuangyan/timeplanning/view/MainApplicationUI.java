@@ -69,7 +69,7 @@ public class MainApplicationUI extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
 
-        JLabel logo = new JLabel("TimePlanning");
+        JLabel logo = new JLabel("Time Planning");
         logo.setFont(logo.getFont().deriveFont(Font.BOLD, 18f));
         topPanel.add(logo, BorderLayout.WEST);
 

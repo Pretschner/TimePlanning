@@ -19,9 +19,9 @@ public class ConstraintFormPanel extends JPanel {
         minField = new JTextField();
         maxField = new JTextField();
 
-        add(new JLabel("Source Group" + (batch ? "(1st, 2nd, ...):" : ":")));
+        add(new JLabel("Source Group" + (batch ? " (1st, 2nd...):" : ":")));
         add(srcField);
-        add(new JLabel("Target Group" + (batch ? "(1st, 2nd, ...):" : ":")));
+        add(new JLabel("Target Group" + (batch ? " (1st, 2nd...):" : ":")));
         add(trgField);
         add(new JLabel("Min. Gap (min):"));
         add(minField);
