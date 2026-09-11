@@ -59,7 +59,7 @@ public class TaskFormPanel extends JPanel {
 
             checkBoxPanel.add(rowWeekdays);
             checkBoxPanel.add(rowWeekends);
-            add(checkBoxPanel);
+            add(checkBoxPanel, BorderLayout.NORTH);
         }
     }
 
