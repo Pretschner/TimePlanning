@@ -37,6 +37,9 @@ public class MainApplicationUI extends JFrame {
     private DefaultTableModel timetableModel;
     private TimeConverter timeConverter;
 
+    // Add and Template buttons
+    private JButton addButton, templateButton;
+
     // Timetable navigation
     private List<Schedule> schedulesList = new ArrayList<>();
     private int currentScheduleIndex = 0;
@@ -102,18 +105,18 @@ public class MainApplicationUI extends JFrame {
             ScheduleDialog.show(this, slotInMinutes, controllerCaller::generateSchedule);
         });
 
-        JButton addBtn = new JButton("Add");
-        addBtn.addActionListener(e -> handleAdd());
+        addButton = new JButton("Add");
+        addButton.addActionListener(e -> handleAdd());
 
-        JButton templateBtn = new JButton("Templates");
-        templateBtn.addActionListener(e -> handleTemplate());
+        templateButton = new JButton("Templates");
+        templateButton.addActionListener(e -> handleTemplate());
 
         JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
         sep.setPreferredSize(new Dimension(1, 28));
 
         bottomPanel.add(generateBtn);
-        bottomPanel.add(addBtn);
-        bottomPanel.add(templateBtn);
+        bottomPanel.add(addButton);
+        bottomPanel.add(templateButton);
 
         // Assemble
         setLayout(new BorderLayout());
@@ -124,6 +127,7 @@ public class MainApplicationUI extends JFrame {
 
         tabbedPane.addChangeListener(e -> {
             detailPanel.showWelcome();
+            updateButtonStateForCurrentTab();
         });
         detailPanel.showWelcome();
     }
@@ -388,6 +392,15 @@ public class MainApplicationUI extends JFrame {
 
         timetableTable.repaint();
         updateNavigationButtons();
+    }
+
+    // BUTTON STATE
+
+    private void updateButtonStateForCurrentTab() {
+        int idx = tabbedPane.getSelectedIndex();
+        boolean isTaskOrConstraintTab = idx <= 1;
+        addButton.setVisible(isTaskOrConstraintTab);
+        templateButton.setVisible(isTaskOrConstraintTab);
     }
 
     // TOP PANEL BUTTON LISTENERS
