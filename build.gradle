@@ -28,18 +28,12 @@ sourceSets {
         java {
             srcDir 'src/server/java'
         }
-        resources {
-            srcDir 'src/server/resources'
-        }
         compileClasspath += common.output
         runtimeClasspath += common.output
     }
     client {
         java {
             srcDir 'src/client/java'
-        }
-        resources {
-            srcDir 'src/client/resources'
         }
         compileClasspath += common.output
         runtimeClasspath += common.output
