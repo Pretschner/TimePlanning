@@ -130,6 +130,8 @@ public class MainApplicationUI extends JFrame {
             updateButtonStateForCurrentTab();
         });
         detailPanel.showWelcome();
+
+        setIconImage(IconUtil.createImageIcon("/logo.png", "").getImage());
     }
 
     // TAB PANELS

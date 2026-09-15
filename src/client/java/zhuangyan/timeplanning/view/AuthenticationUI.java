@@ -42,6 +42,8 @@ public class AuthenticationUI extends JFrame {
         mainPanel.add(createSignupPanel(), "SIGNUP");
 
         add(mainPanel);
+
+        setIconImage(IconUtil.createImageIcon("/logo.png", "").getImage());
         setVisible(true);
     }
 
