@@ -1,6 +1,7 @@
 package zhuangyan.timeplanning.view.renderers;
 
 import zhuangyan.timeplanning.model.Task;
+import zhuangyan.timeplanning.view.DurationUtil;
 import zhuangyan.timeplanning.view.util.ColorSelector;
 
 import javax.swing.*;
@@ -37,7 +38,7 @@ public class TaskCardRenderer extends JPanel implements ListCellRenderer<Task> {
     public Component getListCellRendererComponent(JList<? extends Task> list, Task task, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
         nameLabel.setText("<html><b>" + task.name() + "</b></html>");
-        infoLabel.setText("⏱ " + task.duration().toMinutes() + " min  |  " + task.group());
+        infoLabel.setText("⏱ " + DurationUtil.formatDurationString(task.duration()) + " min  |  " + task.group());
         String earliest = task.timeWindow() != null ? task.timeWindow().earliestStart().toString() : "N/A";
         String latest = task.timeWindow() != null ? task.timeWindow().latestEnd().toString() : "N/A";
         dateLabel.setText("📅 " + earliest + " → " + latest);

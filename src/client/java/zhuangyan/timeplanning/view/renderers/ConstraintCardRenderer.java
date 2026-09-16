@@ -1,6 +1,7 @@
 package zhuangyan.timeplanning.view.renderers;
 
 import zhuangyan.timeplanning.model.GroupConstraint;
+import zhuangyan.timeplanning.view.DurationUtil;
 import zhuangyan.timeplanning.view.util.ColorSelector;
 
 import javax.swing.*;
@@ -40,7 +41,7 @@ public class ConstraintCardRenderer extends JPanel implements ListCellRenderer<G
                                                   GroupConstraint c, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
         titleLabel.setText(c.sourceGroup() + " → " + c.targetGroup());
-        gapLabel.setText("⏳ Min: " + (c.minimumGap() != null ? c.minimumGap().toMinutes() + "m" : "N/A") +  " |  Max: " + (c.maximumGap() != null ? c.maximumGap().toMinutes() + "m" : "N/A"));
+        gapLabel.setText("⏳ Min: " + (c.minimumGap() != null ? DurationUtil.formatDurationString(c.minimumGap()): "N/A") +  " |  Max: " + (c.maximumGap() != null ? DurationUtil.formatDurationString(c.maximumGap()) : "N/A"));
 
         colorStripLeft.setBackground(ColorSelector.colorForGroup(c.sourceGroup()));
         colorStripRight.setBackground(ColorSelector.colorForGroup(c.targetGroup()));

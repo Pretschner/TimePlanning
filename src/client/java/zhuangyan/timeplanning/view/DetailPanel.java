@@ -331,7 +331,7 @@ public class DetailPanel extends JPanel {
         // Fields
         taskName.setText("<html>" + task.name() + "</html>");
         taskGroup.setText(task.group());
-        taskDuration.setText(task.duration().toMinutes() + " min");
+        taskDuration.setText(DurationUtil.formatDurationString(task.duration()));
         taskEarliest.setText(task.timeWindow().earliestStart().toPrettyString());
         taskLatest.setText(task.timeWindow().latestEnd().toPrettyString());
 
@@ -387,7 +387,7 @@ public class DetailPanel extends JPanel {
         // Fields
         placementName.setText("<html>" + task.name() + "</html>");
         placementGroup.setText(task.group());
-        placementDuration.setText(task.duration().toMinutes() + " min");
+        placementDuration.setText(DurationUtil.formatDurationString(task.duration()));
         placementStart.setText(scheduledTask.start().toPrettyString());
         placementEnd.setText(scheduledTask.end().toPrettyString());
 
