@@ -1,4 +1,4 @@
-package zhuangyan.timeplanning.view;
+package zhuangyan.timeplanning.view.util;
 
 import javax.swing.*;
 

@@ -6,15 +6,14 @@ import zhuangyan.timeplanning.time.TimeConverter;
 import zhuangyan.timeplanning.view.dialogs.*;
 import zhuangyan.timeplanning.view.renderers.*;
 import zhuangyan.timeplanning.view.renderers.TimetableCell.SlotType;
+import zhuangyan.timeplanning.view.util.IconUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /** The main dashboard: three tabs (Tasks, Constraints, Timetable) with add/edit/delete, template generation, and schedule navigation. */
 public class MainApplicationUI extends JFrame {

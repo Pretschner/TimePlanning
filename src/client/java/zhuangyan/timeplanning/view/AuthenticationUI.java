@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.view;
 import org.springframework.web.client.RestClientException;
 import zhuangyan.timeplanning.controller.AuthenticationController;
 import zhuangyan.timeplanning.model.Credentials;
+import zhuangyan.timeplanning.view.util.IconUtil;
 
 import javax.swing.*;
 import java.awt.*;
