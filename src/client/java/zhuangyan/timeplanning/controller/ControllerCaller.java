@@ -21,44 +21,44 @@ public class ControllerCaller {
     }
 
     public void callAddTask(Task task) {
-        async("Failed to add task", () -> taskController.add(task, mainUI::updateTaskTable));
+        async(() -> taskController.add(task, mainUI::updateTaskTable));
     }
 
     public void callUpdateTask(Task task) {
-        async("Failed to update task", () -> taskController.edit(task, mainUI::updateTaskTable));
+        async(() -> taskController.edit(task, mainUI::updateTaskTable));
     }
 
     public void deleteTask(Task task) {
-        confirm("Delete task '" + task.name() + "'?", () -> async("Delete failed", () -> taskController.delete(task, mainUI::updateTaskTable)));
+        confirm("Delete task '" + task.name() + "'?", () -> async(() -> taskController.delete(task, mainUI::updateTaskTable)));
     }
 
     public void callAddConstraint(GroupConstraint c) {
-        async("Failed to add constraint", () -> constraintController.add(c, mainUI::updateConstraintTable));
+        async(() -> constraintController.add(c, mainUI::updateConstraintTable));
     }
 
     public void callUpdateConstraint(GroupConstraint c) {
-        async("Failed to update constraint", () -> constraintController.edit(c, mainUI::updateConstraintTable));
+        async(() -> constraintController.edit(c, mainUI::updateConstraintTable));
     }
 
     public void deleteConstraint(GroupConstraint c) {
-        confirm("Delete constraint (" + c.sourceGroup() + " -> " + c.targetGroup() + ")?", () -> async("Delete failed", () -> constraintController.delete(c, mainUI::updateConstraintTable)));
+        confirm("Delete constraint (" + c.sourceGroup() + " -> " + c.targetGroup() + ")?", () -> async(() -> constraintController.delete(c, mainUI::updateConstraintTable)));
     }
 
     public void generateSchedule(ScheduleConfig config) {
-        async("Schedule generation failed", () -> scheduleController.addSchedule(config, mainUI::updateTimetable));
+        async(() -> scheduleController.addSchedule(config, mainUI::updateTimetable));
     }
 
     // DATA SYNC ON STARTUP
 
     public void syncAllDataFromServer() {
-        async("Data synchronization failed", () -> {
+        async(() -> {
             taskController.getAll(mainUI::updateTaskTable, new ParameterizedTypeReference<List<Task>>() {});
             constraintController.getAll(mainUI::updateConstraintTable, new ParameterizedTypeReference<List<GroupConstraint>>() {});
             scheduleController.getAllSchedules(mainUI::updateTimetable);
         });
     }
 
-    private void async(String errorTitle, Runnable task) {
+    private void async(Runnable task) {
         new SwingWorker<Void, Void>() {
             private Exception error;
             @Override protected Void doInBackground() {
@@ -70,7 +70,7 @@ public class ControllerCaller {
                 return null;
             }
             @Override protected void done() {
-                if (error != null) showError(errorTitle, error);
+                if (error != null) showError(error.getMessage(), error);
             }
         }.execute();
     }

@@ -1,5 +1,7 @@
 package zhuangyan.timeplanning.view;
 
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import zhuangyan.timeplanning.controller.AuthenticationController;
 import zhuangyan.timeplanning.model.Credentials;
@@ -198,7 +200,7 @@ public class AuthenticationUI extends JFrame {
                 try {
                     authController.login(credentials);
                 } catch (RestClientException e) {
-                    errorMessage = extractErrorMessage(e);
+                    errorMessage = e.getMessage();
                 }
                 return null;
             }
@@ -247,7 +249,7 @@ public class AuthenticationUI extends JFrame {
                 try {
                     authController.createAccount(credentials);
                 } catch (RestClientException e) {
-                    errorMessage = extractErrorMessage(e);
+                    errorMessage = e.getMessage();
                 }
                 return null;
             }
@@ -280,14 +282,5 @@ public class AuthenticationUI extends JFrame {
         signupUsernameField.setText("");
         signupPasswordField.setText("");
         signupConfirmField.setText("");
-    }
-
-    // Basic error extraction (catches Spring's RestClient exceptions)
-    private String extractErrorMessage(RestClientException e) {
-        String msg = e.getMessage();
-        if (msg != null && msg.contains("400")) return "Invalid credentials or bad request.";
-        if (msg != null && msg.contains("409")) return "Username already taken.";
-        if (msg != null && msg.contains("500")) return "Server error. Try again later.";
-        return msg != null ? msg : "Network error. Check your connection.";
     }
 }
