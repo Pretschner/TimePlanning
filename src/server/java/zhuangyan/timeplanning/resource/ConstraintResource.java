@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import zhuangyan.timeplanning.exception.BadRequestException;
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.service.AuthenticationService;
 import zhuangyan.timeplanning.service.ConstraintService;
@@ -24,7 +25,7 @@ public class ConstraintResource {
     @PostMapping("/constraints")
     public ResponseEntity<GroupConstraint> createGroupConstraint(@RequestBody GroupConstraint constraint, @RequestHeader("Authorization") String authHeader) {
         if (constraint.id() != null && constraint.id() > 0) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Constraint ID must not be provided for creation.");
         }
         long userId = authenticationService.getUserId(authHeader);
         GroupConstraint res = constraintService.createGroupConstraint(constraint, userId);
@@ -34,7 +35,7 @@ public class ConstraintResource {
     @PutMapping("/constraints/{id}")
     public ResponseEntity<GroupConstraint> updateGroupConstraint(@RequestBody GroupConstraint constraint, @PathVariable long id, @RequestHeader("Authorization") String authHeader) {
         if (constraint.id() != id) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Constraint ID in body must match path variable.");
         }
         long userId = authenticationService.getUserId(authHeader);
         GroupConstraint res = constraintService.updateGroupConstraint(constraint, id, userId);
@@ -44,7 +45,7 @@ public class ConstraintResource {
     @DeleteMapping("/constraints/{id}")
     public ResponseEntity<GroupConstraint> deleteGroupConstraint(@PathVariable long id, @RequestHeader("Authorization") String authHeader) {
         if (id <= 0) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Constraint ID must be positive.");
         }
         long userId = authenticationService.getUserId(authHeader);
         GroupConstraint deletedTask = constraintService.deleteGroupConstraint(id, userId);

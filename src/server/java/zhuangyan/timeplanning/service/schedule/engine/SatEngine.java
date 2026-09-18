@@ -97,7 +97,7 @@ public class SatEngine {
         }
 
         if (schedules.isEmpty()) {
-            throw new NotFoundException("No solution was found.");
+            throw new NotFoundException("No valid schedule found for given constraints.");
         }
 
         return schedules;

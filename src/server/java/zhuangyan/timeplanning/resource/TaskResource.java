@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import zhuangyan.timeplanning.exception.BadRequestException;
 import zhuangyan.timeplanning.model.Task;
 import zhuangyan.timeplanning.service.AuthenticationService;
 import zhuangyan.timeplanning.service.TaskService;
@@ -23,7 +24,7 @@ public class TaskResource {
     @PostMapping("/tasks")
     public ResponseEntity<Task> createTask(@RequestBody Task task, @RequestHeader("Authorization") String authHeader) {
         if (task.id() != null && task.id() > 0) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Task ID must not be provided for creation.");
         }
         long userId = authenticationResource.getUserId(authHeader);
         Task res = taskService.createTask(task, userId);
@@ -33,7 +34,7 @@ public class TaskResource {
     @PutMapping("/tasks/{id}")
     public ResponseEntity<Task> updateTask(@RequestBody Task task, @PathVariable long id, @RequestHeader("Authorization") String authHeader) {
         if (task.id() != id) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Task ID in body must match path variable.");
         }
         long userId = authenticationResource.getUserId(authHeader);
         Task res = taskService.updateTask(task, id, userId);
@@ -43,7 +44,7 @@ public class TaskResource {
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Task> deleteTask(@PathVariable long id, @RequestHeader("Authorization") String authHeader) {
         if (id <= 0) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Task ID must be positive.");
         }
         long userId = authenticationResource.getUserId(authHeader);
         Task deletedTask = taskService.deleteTask(id, userId);

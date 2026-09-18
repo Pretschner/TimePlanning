@@ -37,9 +37,9 @@ public class ConstraintService {
 
     private void validateOwnership(long taskId, long userId) {
         long ownerId = constraintRepository.getOwnerId(taskId)
-                .orElseThrow(() -> new NotFoundException("The constraint queried does not exist."));
+                .orElseThrow(() -> new NotFoundException("Constraint not found."));
         if (ownerId != userId) {
-            throw new ForbiddenException("The constraint queried does not belong to the user.");
+            throw new ForbiddenException("Constraint belongs to another user.");
         }
     }
 

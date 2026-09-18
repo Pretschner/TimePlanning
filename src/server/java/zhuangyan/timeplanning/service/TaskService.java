@@ -42,9 +42,9 @@ public class TaskService {
 
     private void validateOwnership(long taskId, long userId) {
         long ownerId = taskRepository.getOwnerId(taskId)
-                .orElseThrow(() -> new NotFoundException("The task queried does not exist."));
+                .orElseThrow(() -> new NotFoundException("Task not found."));
         if (ownerId != userId) {
-            throw new ForbiddenException("The task queried does not belong to the user.");
+            throw new ForbiddenException("Task belongs to another user.");
         }
     }
 }

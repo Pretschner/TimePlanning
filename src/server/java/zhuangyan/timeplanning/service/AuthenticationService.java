@@ -2,7 +2,10 @@ package zhuangyan.timeplanning.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import zhuangyan.timeplanning.exception.BadRequestException;
+import zhuangyan.timeplanning.exception.ConflictException;
 import zhuangyan.timeplanning.exception.ForbiddenException;
+import zhuangyan.timeplanning.exception.UnauthorizedException;
 import zhuangyan.timeplanning.repository.AuthenticationRepository;
 
 import java.util.UUID;
@@ -19,7 +22,7 @@ public class AuthenticationService {
 
     public String login(String username, String password) {
         if (!authenticationRepository.authenticate(username, password)) {
-            throw new ForbiddenException("Authentication Failed.");
+            throw new UnauthorizedException("Invalid Credentials.");
         }
         return authenticationRepository.storeToken(UUID.randomUUID().toString(), username);
     }
@@ -31,7 +34,7 @@ public class AuthenticationService {
 
     public void createAccount(String username, String password) {
         if (!authenticationRepository.saveUser(username, password)) {
-            throw new ForbiddenException("Credentials are already in use.");
+            throw new ConflictException("Username is already taken.");
         }
     }
 
@@ -44,14 +47,14 @@ public class AuthenticationService {
         String token = toToken(authHeader);
         long id = authenticationRepository.getUserId(token);
         if (id == -1) {
-            throw new ForbiddenException("No authentication!");
+            throw new UnauthorizedException("Invalid or expired token.");
         }
         return id;
     }
 
     private String toToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new ForbiddenException("Missing or malformed Authorization header.");
+            throw new BadRequestException("Missing or malformed Authorization header.");
         }
         return authHeader.substring(7);
     }

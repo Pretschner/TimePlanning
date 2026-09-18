@@ -3,6 +3,7 @@ package zhuangyan.timeplanning.resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import zhuangyan.timeplanning.exception.BadRequestException;
 import zhuangyan.timeplanning.model.Schedule;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.service.AuthenticationService;
@@ -24,7 +25,7 @@ public class ScheduleResource {
     @PostMapping("/schedules")
     public ResponseEntity<List<Schedule>> createSchedule(@RequestBody ScheduleConfig config, @RequestHeader("Authorization") String authHeader) {
         if (config.slotInMinutes() <= 0) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Slot duration must be positive.");
         }
         long userId = authenticationService.getUserId(authHeader);
         List<Schedule> createdSchedule = scheduleService.createSchedule(config, userId);
