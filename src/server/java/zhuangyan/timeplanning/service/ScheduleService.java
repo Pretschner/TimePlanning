@@ -2,6 +2,7 @@ package zhuangyan.timeplanning.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import zhuangyan.timeplanning.exception.BadRequestException;
 import zhuangyan.timeplanning.model.*;
 import zhuangyan.timeplanning.model.ScheduleConfig.Strategy;
 import zhuangyan.timeplanning.repository.BaseRepository;
@@ -31,7 +32,12 @@ public class ScheduleService {
     public List<Schedule> createSchedule(ScheduleConfig config, long userId) {
         List<Task> tasks = taskService.getTasks(userId);
         List<GroupConstraint> groupConstraints = constraintService.getGroupConstraints(userId);
-        TimeConverter converter = TimeConverter.create(config.slotInMinutes());
+        TimeConverter converter;
+        try {
+            converter = TimeConverter.create(config.slotInMinutes());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid slot duration: " + e.getMessage());
+        }
 
         ScoringStrategy scoringStrategy;
         if (config.scoringStrategies() == null || config.scoringStrategies().isEmpty()) {
