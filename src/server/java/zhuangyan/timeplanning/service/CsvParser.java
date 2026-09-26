@@ -26,7 +26,7 @@ public class CsvParser {
             DateTimeFormatter.ofPattern("HH:mm");
 
     public List<Task> readTasks(Path path) throws IOException {
-        long id = 0;
+        long id = 1;
         List<Task> tasks = new ArrayList<>();
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
