@@ -1,6 +1,7 @@
 package zhuangyan.timeplanning.controller;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClientException;
 import zhuangyan.timeplanning.model.GroupConstraint;
 import zhuangyan.timeplanning.model.ScheduleConfig;
 import zhuangyan.timeplanning.model.Task;
@@ -60,17 +61,17 @@ public class ControllerCaller {
 
     private void async(Runnable task) {
         new SwingWorker<Void, Void>() {
-            private Exception error;
+            private String error;
             @Override protected Void doInBackground() {
                 try {
                     task.run();
-                } catch (Exception e) {
-                    error = e;
+                } catch (RestClientException e) {
+                    error = e.getMessage();
                 }
                 return null;
             }
             @Override protected void done() {
-                if (error != null) showError(error.getMessage(), error);
+                if (error != null) JOptionPane.showMessageDialog(mainUI, error, "Error", JOptionPane.ERROR_MESSAGE);
             }
         }.execute();
     }
@@ -81,11 +82,4 @@ public class ControllerCaller {
         }
     }
 
-    // Error Handling
-    private void showError(String message, Exception e) {
-        SwingUtilities.invokeLater(() -> {
-            String detail = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-            JOptionPane.showMessageDialog(mainUI, message + ":\n" + detail, "Error", JOptionPane.ERROR_MESSAGE);
-        });
-    }
 }
