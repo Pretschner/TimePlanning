@@ -140,6 +140,7 @@ public class MainApplicationUI extends JFrame {
 
         taskListModel = new DefaultListModel<>();
         taskList = new JList<>(taskListModel);
+        taskList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         taskList.setCellRenderer(new TaskCardRenderer());
         taskList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         taskList.setVisibleRowCount(-1);
@@ -161,6 +162,7 @@ public class MainApplicationUI extends JFrame {
 
         constraintListModel = new DefaultListModel<>();
         constraintList = new JList<>(constraintListModel);
+        constraintList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         constraintList.setCellRenderer(new ConstraintCardRenderer());
         constraintList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         constraintList.setVisibleRowCount(-1);
